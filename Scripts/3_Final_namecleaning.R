@@ -1,3 +1,5 @@
+#TO DO on this script: need missing files 
+
 rm(list = ls()) # clears everything
 library(tidyverse)
 
@@ -22,13 +24,13 @@ library(tidyverse)
 
 #### read in and name clean for germination and relative abundance data ####
 # dat2fixnames=read.csv("Seed Trait Paper/clean_final_subdata/SBRAbyspecies_tomatch2017_120222.csv",header = T,strip.white = T)
-dat2fixnames=read.csv("Seed Trait Paper/clean_final_subdata/SBRAWbyspecies_tomatch2017_05112023.csv",header = T,strip.white = T)
+dat2fixnames=read.csv("Cleaned data/SBRAWbyspecies_tomatch2017_05112023.csv",header = T,strip.white = T)
 dat2fixnames$prevname=dat2fixnames$species_code  ##here matching with species_code
 dat2fixnames$species_code=NULL
 dat2fixnames$obsID=c(1:length(dat2fixnames$Line))
 
 # input dat2fixnames with column prevname for the code
- source("Seed Trait Paper/Scripts/2_name_cleaning_tosource_spcode.R")
+ source("Scripts/2_name_cleaning_tosource_spcode.R")
  # output = cleannamedat with column clean_code
 SBRAdat=cleannamedat
 
@@ -42,19 +44,19 @@ SBRAdat=SBRAdat%>%
   select(-obsID,-relcover)%>%
   distinct()
 
-datGerm=read.csv("Seed Trait Paper/Final_Analysis_data/Germ_expt_Nov2022.csv",header = T)
+datGerm=read.csv("Raw data/Germ_expt_Nov2022.csv",header = T)
 datGerm=datGerm%>%mutate(IDnum = Species..)
 names(datGerm)
 head(datGerm)
 dat2fixnames=datGerm%>%
   select(-Species.Name,-Species..)
-source("Seed Trait Paper/Scripts/2_name_cleaning_tosource_ID.R")
+source("Scripts/2_name_cleaning_tosource_ID.R")
 GermExt=cleannamedat
 
 ### read in SCP, CN, and MFsm, VM, starch, and clean names before combining #####
-SCP=read.csv("Seed Trait Paper/clean_final_subdata/SCP_summary_120222.csv",header=T,strip.white = T)
-CN=read.csv("Seed Trait Paper/clean_final_subdata/cn_summary_120222.csv",header=T,strip.white=T)
-MFsm=read.csv("Seed Trait Paper/clean_final_subdata/mf_sm_summary_120222.csv",header = T,strip.white = T)
+SCP=read.csv("Cleaned data/SCP_summary_120222.csv",header=T,strip.white = T)
+CN=read.csv("Cleaned data/cn_summary_120222.csv",header=T,strip.white=T)
+MFsm=read.csv("Cleaned data/mf_sm_summary_120222.csv",header = T,strip.white = T)
 
 head(SCP)
 head(CN)
@@ -62,7 +64,7 @@ dat2fixnames=CN
 dat2fixnames$prevname=dat2fixnames$species_code  ##here matching with species_code
 dat2fixnames$species_code=NULL
 dat2fixnames$obsID=c(1:length(dat2fixnames$prevname))
-source("Seed Trait Paper/Scripts/2_name_cleaning_tosource_spcode.R")
+source("Scripts/2_name_cleaning_tosource_spcode.R")
 head(cleannamedat)
 CN=cleannamedat
 
@@ -71,14 +73,14 @@ dat2fixnames=MFsm
 dat2fixnames$prevname=dat2fixnames$species_code  ##here matching with species_code
 dat2fixnames$species_code=NULL
 dat2fixnames$obsID=c(1:length(dat2fixnames$prevname))
-source("Seed Trait Paper/Scripts/2_name_cleaning_tosource_spcode.R")
+source("Scripts/2_name_cleaning_tosource_spcode.R")
 head(cleannamedat)
 MFsm=cleannamedat
 
 ###
 head(SCP)
 dat2fixnames=SCP
-source("Seed Trait Paper/Scripts/2_name_cleaning_tosource_ID.R")
+source("Scripts/2_name_cleaning_tosource_ID.R")
 head(cleannamedat)
 SCP=cleannamedat
 
@@ -90,7 +92,7 @@ traitdat=traitdat%>%
   right_join(CN)%>%
   select(-species_code,-obsID)
 
-
+#### MISSING FILES ####
 ## Starch
 Starch=read.csv("Seed Trait Paper/current_csv files/Starch_20221222.csv", header=T, strip.white = T)
 
