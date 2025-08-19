@@ -17,7 +17,7 @@
 ##Autorun from here#####
           
 # Species name data
-spnames=read.csv("Cleaned data/updated_name_issues2_withIDsforall_Apr2023.csv",header=T, strip.white = T)
+spnames=read.csv("Cleaned data/updated_name_issues2_withIDsforall_Dec2022.csv",header=T, strip.white = T)
 spnames$code=NULL
 spnames$Species_name=NULL
 
@@ -95,7 +95,7 @@ temp=matrix(NA,length(issues_out),length(spnames))
 temp[,8]=issues_out
 outnames=rbind(outnames,temp)
 
-write.csv(outnames,"Seed Trait Paper/updated_name_issues2.csv", row.names=F)
+write.csv(outnames,"Cleaned data/updated_name_issues2.csv", row.names=F)
 
 if(length(issues_out)==0){
   print("No name issues")

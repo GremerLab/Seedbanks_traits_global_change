@@ -1,25 +1,27 @@
+## To do on this script - replace "dat" names with dataframe specific names, make sure all files write out correctly
+
 rm(list = ls()) # clears everything
 library(tidyverse)
 
 #### File tracking ####
 ## IN (in order of Table 1)
 # SCT_microscopeandzoom.csv
-# Starch_20221222.csv  ###MISSING FILE ####
-# CN.csv
 # dry_seed_coat_permeabilityALL.csv
 # list.files(pattern = "Wet seed coat", path = "Seed Trait Paper/current_csv files/"
+# Starch_20221222.csv  ###MISSING FILE ####
+# CN.csv, Seed_CN_Marina.csv, 20210610_Marina_SpeciesList.csv
 # seedmass_20200228.csv
-
-# Seed_CN_Marina.csv
-# 20210610_Marina_SpeciesList.csv
+# Files from videometer: list.files(pattern = "_blobs_", path = "Raw data/VMExports/", full.names = TRUE)
+# seedtraitphotos_categories_Dec2022_v1.csv #### missing file ####
 # seedbankgrowoutallyrs_wide_relabun_LUMPunknowns_tomatch2017.csv
 
 ## OUT
-# SCP : sead coat permiability
-# SCP_summary
-# MF_sm: maternal family seed mass
-# MF_sm_summary
-# cn_summary_full: carbon/nitrogen ratio ELISE + Marina's samples (MCL species only)
+# Seed coat thickness: SCT_micrometer.csv
+#Seed coat permeability: SCP_120222.csv, SCP_summary_120222.csv
+# Starch: Starch_20221222.csv 
+# Seed mass: MF_sm: maternal family seed mass - mf_sm_120222.csv
+# Seed mass summary: mf_sm_summary_120222.csv
+# cn_summary_full: carbon/nitrogen ratio ELISE + Marina's samples (MCL species only): cn_summary_120222.csv
 # SBRA_tomatch2017 : seed bank relative abundance - including 0's i.e. to match aboveground 2017 data
 
 #### read in and clean SCT data ####
@@ -88,10 +90,15 @@ SCP_summary=SCP%>%
                       SS_SCP=sum(fulldata,na.rm=T))
 head(SCP_summary)
 
+# write.csv(SCP,"Cleaned data/SCP_120222.csv",row.names = F)
+# write.csv(SCP_summary,"Cleaned data/SCP_summary_120222.csv",row.names = F)
+
 #### Starch content ####
 Starch=read.csv("Raw data/Starch_20221222.csv", header=T, strip.white = T) #missing file, need to get from Elise
 
 Starch=Starch%>%select(IDnum="Idnum",starch,mucilage)
+
+#write.csv(Starch, "Cleaned data/Starch_20221222.csv")
 
 ## CN data cleaning (Elise's and Marina's samples) ####
 cndat=read.csv("Raw data/CN.csv",header=T)
@@ -175,6 +182,8 @@ cndat1%>%filter(ID !=newID)%>%mutate(cn=C/N)%>%arrange(newID)
 ## These are close enough to ignore - I don't have enough data to really quantify any differences.
 # NOTE CENSOL light and dark are very different!dark is much higher (far LESS nitrogen) than light seed
 
+# write.csv(cn_summary_full,"Cleaned data/cn_summary_120222.csv",row.names = F)
+
 
 ### Seed mass ####
 dat=read.csv("Raw data/seedmass_20200228.csv",header=T)
@@ -203,6 +212,9 @@ MF_sm=dat1%>%
   full_join(MF_sm_summary)
 
 #rm(dat,dat1)
+# write.csv(MF_sm,"Cleaned data/mf_sm_120222.csv",row.names = F)
+# write.csv(MF_sm_summary,"Cleaned data/mf_sm_summary_120222.csv",row.names = F)
+
 
 #### Length, 3D shape, compactness, seed texture from Videometer ####
 #read in multiple files
@@ -222,12 +234,170 @@ dat2fixnames=VM_1%>%
 length(unique(dat2fixnames$prevname))
 dat2fixnames
 
-source("C:/Projects/McLaughlinSeedBank/Seed_trait_paper_public/Seedbanks_traits_global_change/Scripts/2_name_cleaning_tosource_spcode.R")
+source("Scripts/2_name_cleaning_tosource_spcode.R")
 
 # combine data with clean names
 VM_1=cleannamedat%>%
   select(IDnum,clean_code,Org.Filename)%>%
   right_join(VM_1)
+
+# combine data with clean names
+VM_1=cleannamedat%>%
+  select(IDnum,clean_code,Org.Filename)%>%
+  right_join(VM_1)
+
+## remove unnecessary columns
+names(VM_1)
+VMdat1=VM_1%>%
+  mutate(texture=VM_1$`AutoCorrelationEnergy1 [9]`)%>%
+  select(-starts_with("AutoC"), -starts_with("Multi"),
+         -starts_with("CIEL"),-starts_with("Vert"),
+         -starts_with("Perp"))%>%
+  distinct()
+names(VMdat1)
+head(VMdat1)
+length(unique(VMdat1$IDnum))
+
+## Remove repeats
+# some doubles for lumpers Clarkiasp, Galiumsp
+# some true doubles
+VMdat1=VMdat1%>%
+  filter(IDnum<72)
+
+VMdat1=VMdat1%>%
+  group_by(Org.Filename,`Area (mm2)`,Saturation)%>%
+  summarise(newBlobId=mean(BlobId))%>%
+  distinct()%>%
+  left_join(VMdat1)%>%
+  select(-BlobId)%>%
+  distinct()
+VMdat1$BlobId=VMdat1$newBlobId
+
+## specifically deal with known thycur and mimdou issue where photos were with pods.
+to_remove=VMdat1%>%
+  filter(str_detect(Org.Filename,"MIMDOU") == T | 
+           str_detect(Org.Filename,"THYCUR") == T )%>%
+  filter(str_detect(Org.Filename, "seed") == F)
+
+VMdat1=VMdat1%>%
+  anti_join(to_remove)
+
+## determine blob orderof 2 photos
+VMdat1$localblob=c(1:length(VMdat1$BlobId))
+blobstomatch=VMdat1%>%
+  select(localblob,IDnum,Org.Filename,`Area (mm2)`,BlobId,Saturation)%>%
+  group_by(Org.Filename,IDnum)%>%
+  summarise(localblobMIN=min(localblob))%>%
+  full_join(VMdat1)%>%
+  mutate(localblobrelative=localblob-localblobMIN)%>%
+  select(-localblob,-BlobId)
+
+blobstomatch2=blobstomatch%>%
+  group_by(IDnum,clean_code,localblobrelative)%>%
+  summarise(avgarea=mean(`Area (mm2)`,rm.na=T),
+            num=n())%>%
+  inner_join(blobstomatch)%>%
+  mutate(LargestArea=ifelse(`Area (mm2)`>=avgarea,1,0))
+
+firstblobs=blobstomatch2%>%
+  filter(LargestArea==1)%>%
+  select(-num,-newBlobId, -LargestArea)
+
+secondblobs=blobstomatch2%>%
+  filter(LargestArea==0)%>%
+  select(IDnum,clean_code,localblobrelative,Org.Filename2=Org.Filename,LH_area=`Area (mm2)`,LH_L=`Length (mm)`,H=`Width (mm)`,LH_Circle=`Compactness Circle`)
+
+blobs=secondblobs%>%
+  full_join(firstblobs)
+#View(blobs)
+
+## secondblob will have all of the second photos.
+# I am defining the Length as the longest axis of the side with the most area. The width as the second axis of the side with the most area. The height is the shorter axis from the other dimension (LH). I am keeping the values from the photo with the largest area as the main data source. A few variables are kept for the height axis (area, Circleness, filename).
+
+VMdatblobs=blobs%>%
+  select(IDnum,clean_code,
+         H,
+         L="Length (mm)",
+         LH_L,
+         W="Width (mm)",
+         area_LW="Area (mm2)",
+         Perimeter1,Hue,PCof19WL=IHSIntensityMean1,texture,
+         Rectangularity1, LH_Circle, LW_Circle=`Compactness Circle`,`Compactness Ellipse`,BetaShape_a,BetaShape_b,Saturation,LH_area,Org.Filename,Org.Filename2)%>%
+  mutate(H=ifelse(is.na(H),W,H),
+         Wadj=W/L,
+         Ladj=1,
+         Hadj=H/L,
+         shape=var(c(Wadj,Hadj,Ladj)))%>% #third dimension.
+  select(-Ladj,-Hadj,-Wadj)
+names(VMdatblobs)
+
+VM_summary=VMdatblobs%>%
+  mutate(H=ifelse(is.na(H),W,H),
+         Wadj=W/L,
+         Ladj=1,
+         Hadj=H/L,
+         shape=var(c(Wadj,Hadj,Ladj)))%>%
+  select(-Ladj,-Hadj,-Wadj)%>%
+  select(where(is.numeric))%>%
+  group_by(IDnum,clean_code)%>%
+  summarise(across(everything(),c(mean,sd)))
+
+# write.csv(VM_summary,"Cleaned data/VM_byspecies_Jan20.csv",row.names = F)
+
+# write.csv(VMdatblobs,"Cleaned data/VM_byblobs_Jan20.csv",row.names = F)
+
+
+head(VM_summary)
+names(VM_summary)
+quickdat=VM_summary%>%
+  select(IDnum,clean_code,
+         shape_1,Perimeter1_1,L_1,area_LW_1,
+         sd_shape="shape_2",sd_perim="Perimeter1_2",sd_L="L_2",sdarea="area_LW_2")
+
+# data_without_na %>%
+#   select(where(is.numeric)) %>%
+#   summarise(across(everything(), mean))
+quickdat
+# write.csv(quickdat,"Cleaned data/VM_byspecies_mainvariables.csv",row.names = F)
+
+#### Dispersal appendages ####
+Morph=read.csv("Raw data/seedtraitphotos_categories_Dec2022_v1.csv", header=T, strip.white = T) #### missing file ####
+names(Morph)
+Morph1=Morph[c(1,4:6,8)]
+# head(Morph2)
+##Issue avefat has both types many short 1 long
+
+# How many categories (currently 11, change to 7)
+Morph1%>%
+  group_by(category, subcategory)%>%
+  summarise(num=n())
+
+Morph2=Morph1%>%
+  mutate(lump_dispcat=case_when(sp..== 6 ~ 'elong_long',
+                                category =='balloon'~'balloon',
+                                category == 'flat'~ 'flat',
+                                subcategory =='many long'~'elong_long',
+                                subcategory =='one long'~'elong_long',
+                                subcategory =='many short'~'elong_short',
+                                subcategory =='one short'~'elong_short',
+                                category =='other'~'other',
+                                TRUE ~ subcategory))
+
+Morph2%>%
+  group_by(lump_dispcat)%>%
+  summarise(num=n())
+Morph2%>%
+  group_by(fruit_type,germ_is_disp)%>%
+  summarise(num=n())
+Morph2%>%
+  group_by(lump_dispcat,germ_is_disp)%>%
+  summarise(num=n())
+
+
+Morph3=Morph2%>%
+  select(IDnum="sp..",germ_is_disp,lump_dispcat)%>%
+  distinct()
+
 
 #### Relative Abundance of seedbank dataprep ####
 
@@ -254,16 +424,12 @@ SBRA_tomatch2017=dat1%>%
 head(SBRA_tomatch2017)
 unique(SBRA_tomatch2017$species_code)
 
-rm(dat1,relcover3)
+#rm(dat1,relcover3)
 
-### write out files to clean_final_subdata folder ####
+# write.csv(SBRA_tomatch2017,"Cleaned dataSBRAbyspecies_tomatch2017_120222.csv",row.names = F)
 
-# write.csv(SCP,"Seed Trait Paper/clean_final_subdata/SCP_120222.csv",row.names = F)
-# write.csv(SCP_summary,"Seed Trait Paper/clean_final_subdata/SCP_summary_120222.csv",row.names = F)
-# write.csv(MF_sm,"Seed Trait Paper/clean_final_subdata/mf_sm_120222.csv",row.names = F)
-# write.csv(MF_sm_summary,"Seed Trait Paper/clean_final_subdata/mf_sm_summary_120222.csv",row.names = F)
-# write.csv(cn_summary_full,"Seed Trait Paper/clean_final_subdata/cn_summary_120222.csv",row.names = F)
-# write.csv(SBRA_tomatch2017,"Seed Trait Paper/clean_final_subdata/SBRAbyspecies_tomatch2017_120222.csv",row.names = F)
+# write.csv(SBRA_tomatch2017,"Cleaned data/SBRAWbyspecies_tomatch2017_05112023.csv",row.names = F)
 
-# write.csv(SBRA_tomatch2017,"Seed Trait Paper/clean_final_subdata/SBRAWbyspecies_tomatch2017_05112023.csv",row.names = F)
+
+
 
