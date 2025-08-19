@@ -1,4 +1,4 @@
-## To do on this script - replace "dat" names with dataframe specific names, make sure all files write out correctly
+## To do on this script - replace "dat" names with dataframe specific names, make sure all files write out correctly - done except starch and dispersal data since missing files
 
 rm(list = ls()) # clears everything
 library(tidyverse)
@@ -398,6 +398,7 @@ Morph3=Morph2%>%
   select(IDnum="sp..",germ_is_disp,lump_dispcat)%>%
   distinct()
 
+#write out morphological data here # ####Need to do ####
 
 #### Relative Abundance of seedbank dataprep ####
 
