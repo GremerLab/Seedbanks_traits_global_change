@@ -2,11 +2,14 @@ rm(list = ls()) # clears everything
 library(tidyverse)
 
 #### File tracking ####
-## IN 
+## IN (in order of Table 1)
+# SCT_microscopeandzoom.csv
+# Starch_20221222.csv  ###MISSING FILE ####
+# CN.csv
 # dry_seed_coat_permeabilityALL.csv
 # list.files(pattern = "Wet seed coat", path = "Seed Trait Paper/current_csv files/"
 # seedmass_20200228.csv
-# CN.csv
+
 # Seed_CN_Marina.csv
 # 20210610_Marina_SpeciesList.csv
 # seedbankgrowoutallyrs_wide_relabun_LUMPunknowns_tomatch2017.csv
@@ -19,7 +22,32 @@ library(tidyverse)
 # cn_summary_full: carbon/nitrogen ratio ELISE + Marina's samples (MCL species only)
 # SBRA_tomatch2017 : seed bank relative abundance - including 0's i.e. to match aboveground 2017 data
 
-#### read in, clean, and combine csv for seed coat permiability ####
+#### read in and clean SCT data ####
+SCTdat=read.csv("Raw data/SCT_microscopeandzoom.csv", header=T)
+names(SCTdat)
+head(SCTdat)
+unique(SCTdat$clean_code)
+doubles=c("double_TRIALB", "double_PETPRO","double_EPIBRA")
+## remove doubled species and zoom columns
+SCTdat=SCTdat%>%
+  select(-starts_with("Photo"),-Cross_zoom,-Ext_Zoom)%>%
+  filter(clean_code %in% doubles ==F)
+
+names(SCTdat)
+# don't need to fix names
+str(SCTdat)
+
+SCTdat1=SCTdat%>%
+  mutate(mulongonly=rowMeans(subset(SCTdat,select = c(long_1,long_2,long_3,long_4,long_5)), na.rm = TRUE),
+         muSCT=rowMeans(subset(SCTdat,select=c(cross_1,long_1,long_2,long_3,long_4,long_5)),na.rm = T))%>%
+  group_by(IDnum,clean_code)%>%
+  dplyr::summarise(muSCT=mean(muSCT,na.rm = T),SCTlongonly=mean(mulongonly,na.rm = T))
+
+SCTdat2=SCTdat1%>%select(-muSCT)
+# write.csv(SCTdat2,"Cleaned data/SCT_micrometer.csv",row.names = F)
+
+
+#### read in, clean, and combine csv for seed coat permeability ####
 SCP_d=read.csv("Raw data/dry_seed_coat_permeabilityALL.csv",header=T, strip.white = T)
 
 #remove extra columns
@@ -60,33 +88,10 @@ SCP_summary=SCP%>%
                       SS_SCP=sum(fulldata,na.rm=T))
 head(SCP_summary)
 
-### Seed mass ####
-dat=read.csv("Raw data/seedmass_20200228.csv",header=T)
+#### Starch content ####
+Starch=read.csv("Raw data/Starch_20221222.csv", header=T, strip.white = T) #missing file, need to get from Elise
 
-names(dat)
-unique(dat$species_code)
-
-# fix NA's
-dat=dat%>%
-  mutate(species_code=ifelse(is.na(species_code),species,species_code))
-
-dat1=dat%>%
-  select(species_code,total_seed_mass_g,nseeds=Total._seeds_weighed,species)%>%
-  mutate(seed_mass=total_seed_mass_g/nseeds)
-
-table(dat1$species_code)
-
-MF_sm_summary=dat1%>%
-  group_by(species_code,species)%>%
-  summarise(nseedssp=sum(nseeds),nfam=n(),
-            spdrymf=mean(seed_mass,na.rm=T),
-            sd_spdrymf=sd(seed_mass,na.rm=T))
-
-MF_sm=dat1%>%
-  select(species_code,seed_mass)%>%
-  full_join(MF_sm_summary)
-
-#rm(dat,dat1)
+Starch=Starch%>%select(IDnum="Idnum",starch,mucilage)
 
 ## CN data cleaning (Elise's and Marina's samples) ####
 cndat=read.csv("Raw data/CN.csv",header=T)
@@ -137,8 +142,8 @@ datMcn2=datMcn2%>%
 
 #FIX NAMES
 datMcn2$code2 <- recode(datMcn2$code, "LOGFIL" = "FILCAL",   
-                            "ZELTRI" = "CENTRI", 
-                            "ACMWRA" = "LOTWRA") 
+                        "ZELTRI" = "CENTRI", 
+                        "ACMWRA" = "LOTWRA") 
 
 # Elise ran 2 samples from previous CN batch see just below
 a=toupper(cn_summary$species_code)
@@ -153,7 +158,7 @@ cn_summary_full=datMcn2%>%
   mutate(species_code=paste(substr(code2,1,1),substr(tolower(code2),2,length(code2)),sep="")) %>%
   full_join(cn_summary)%>%
   select(-code2)
- 
+
 head(cn_summary_full)
 
 #rm(cndat,datM,datMcn,datMcn2, cn_summary)
@@ -168,8 +173,61 @@ cndat1%>%filter(ID !=newID)%>%mutate(cn=C/N)%>%arrange(newID)
 #CHLPOM = 2 in original (15.5,13.5) vs Marina 10.5 ( 4 pts lower)
 #LINDIC = 1 sample in original (17.2) vs Marina 17.5  (SAME)
 ## These are close enough to ignore - I don't have enough data to really quantify any differences.
-
 # NOTE CENSOL light and dark are very different!dark is much higher (far LESS nitrogen) than light seed
+
+
+### Seed mass ####
+dat=read.csv("Raw data/seedmass_20200228.csv",header=T)
+
+names(dat)
+unique(dat$species_code)
+
+# fix NA's
+dat=dat%>%
+  mutate(species_code=ifelse(is.na(species_code),species,species_code))
+
+dat1=dat%>%
+  select(species_code,total_seed_mass_g,nseeds=Total._seeds_weighed,species)%>%
+  mutate(seed_mass=total_seed_mass_g/nseeds)
+
+table(dat1$species_code)
+
+MF_sm_summary=dat1%>%
+  group_by(species_code,species)%>%
+  summarise(nseedssp=sum(nseeds),nfam=n(),
+            spdrymf=mean(seed_mass,na.rm=T),
+            sd_spdrymf=sd(seed_mass,na.rm=T))
+
+MF_sm=dat1%>%
+  select(species_code,seed_mass)%>%
+  full_join(MF_sm_summary)
+
+#rm(dat,dat1)
+
+#### Length, 3D shape, compactness, seed texture from Videometer ####
+#read in multiple files
+library(readxl)
+files = list.files(pattern = "_blobs_", path = "Raw data/VMExports/", full.names = TRUE); files
+
+# sizes = map_df(files, ~read_xlsx(., na = "NA", col_types = c("numeric", "text", "text", "text", "text", "text", "numeric", "numeric", "text"))) 
+VM_1 =   map_df(files, ~ read_xlsx(.,na="NA"))
+names(VM_1)
+
+## Select species name and apply correct name information
+dat2fixnames=VM_1%>%
+  select(Org.Filename)%>%
+  mutate(prevname=paste(substr(Org.Filename,1,1),tolower(substr(Org.Filename,2,6)),sep=""))%>%
+  distinct()
+
+length(unique(dat2fixnames$prevname))
+dat2fixnames
+
+source("C:/Projects/McLaughlinSeedBank/Seed_trait_paper_public/Seedbanks_traits_global_change/Scripts/2_name_cleaning_tosource_spcode.R")
+
+# combine data with clean names
+VM_1=cleannamedat%>%
+  select(IDnum,clean_code,Org.Filename)%>%
+  right_join(VM_1)
 
 #### Relative Abundance of seedbank dataprep ####
 
