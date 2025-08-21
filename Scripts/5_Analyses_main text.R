@@ -132,88 +132,55 @@ plot_grid(fig1a , fig1b  , labels = c("A.", "B."), label_size=14)
 
 #ggsave("Plots/Fig1_TraitPCA.jpg", height = 10, width = 20)
 
-
-
-
-
+####Figure SX: Trait PCA with convex hulls ####
 #add convex hulls for forb, grass, Nfixer
 pca_hull_fxnalgroup12 <- 
   all2 %>% 
   group_by(Functional.group) %>% 
-  slice(chull(PC1, PC2))
+  slice(chull(PC1, PC2)) %>%
+  mutate(fillgroup = case_when(
+        Functional.group == "Forb" ~ "#D95F02FF",
+        Functional.group == "Grass" ~ "#1B9E77FF",
+        Functional.group == "N-fixer" ~ "#7570B3FF"
+  ))
+  
 
-chull_functionalgroup12 <- 
-  p12 +
+figSXa <- 
+  fig1a +
   geom_polygon(data = pca_hull_fxnalgroup12,
-               aes(fill = Functional.group,
-                   colour = Functional.group),
+               aes(fill = fillgroup,
+                   color = fillgroup),
                alpha = 0.3,
                show.legend = T) +
-  scale_colour_brewer(palette = "Dark2") +
-  scale_fill_brewer(palette = "Dark2") 
+  guides(fill = "none", color = "none", shape = guide_legend(override.aes = list(fill = NA)))
 
-chull_functionalgroup12
-
-pca_hull_nativenon12 <- 
-  all2 %>% 
-  group_by(origin) %>% 
-  slice(chull(PC1, PC2))
-
-chull_nativenon12 <-  p12 + geom_polygon(data = pca_hull_nativenon12,
-                                         aes(fill = origin,
-                                             colour = origin),
-                                         alpha = 0.3,
-                                         show.legend = T) +
-  scale_color_brewer(palette = "Dark2") +
-  scale_fill_brewer(palette = "Dark2") 
-chull_nativenon12
-
-#do this for PC3 and PC4 too.
-p34 <- autoplot(trait.pca_prcomp , data = all2, #colour = 'origin',
-                loadings = TRUE, loadings.colour = c("green", "purple", "green", "orange", "orange", "purple", "orange", "purple", "purple", "purple", "purple"), #  "black",
-                size=2,scale = 0,
-                shape="Functional.group",loadings.label=T,loadings.label.size = 3.5,x = 3,y=4, 
-                loadings.label.colour= c("green", "purple", "green", "orange", "orange", "purple", "orange", "purple", "purple", "purple", "purple"), #  "black",
-                loadings.label.vjust=1.5, loadings.label.hjust=0.5)+
-  
-  scale_color_grey(start = 0.4, end = 0.7)+
-  theme_bw()+
-  theme(legend.direction ='horizontal', 
-        legend.position = 'bottom',
-        legend.title = element_blank())
-p34
+figSXa 
 
 #add convex hulls for forb, grass, Nfixer
 pca_hull_fxnalgroup34 <- 
   all2 %>% 
   group_by(Functional.group) %>% 
-  slice(chull(PC3, PC4))
+  slice(chull(PC3, PC4))%>%
+  mutate(fillgroup = case_when(
+    Functional.group == "Forb" ~ "#D95F02FF",
+    Functional.group == "Grass" ~ "#1B9E77FF",
+    Functional.group == "N-fixer" ~ "#7570B3FF"
+  ))
 
-chull_functionalgroup34 <- 
-  p34 +
+figSXb <- 
+  fig1b +
   geom_polygon(data = pca_hull_fxnalgroup34,
-               aes(fill = Functional.group,
-                   colour = Functional.group),
+               aes(fill = fillgroup,
+                   color = fillgroup),
                alpha = 0.3,
                show.legend = T) +
-  scale_colour_brewer(palette = "Dark2") +
-  scale_fill_brewer(palette = "Dark2") 
+  guides(fill = "none", color = "none", linetype = guide_legend(override.aes = list(fill = NA)))
 
-chull_functionalgroup34
+figSXb 
 
-pca_hull_nativenon34 <- 
-  all2 %>% 
-  group_by(origin) %>% 
-  slice(chull(PC3, PC4))
-
-chull_nativenon34 <-  p34 + geom_polygon(data = pca_hull_nativenon34,
-                                         aes(fill = origin,
-                                             colour = origin),
-                                         alpha = 0.3,
-                                         show.legend = T) +
-  scale_color_brewer(palette = "Dark2") +
-  scale_fill_brewer(palette = "Dark2") 
-chull_nativenon34
+####Fig SX: Trait PCA with convex hulls for functional groups ####
+plot_grid(figSXa , figSXb  , labels = c("A.", "B."), label_size=14)
+#ggsave("Plots/FigSX_TraitPCA_withconvexhulls.jpg", height = 10, width = 20)
 
 
 #### test significance of differences between PC values ####
