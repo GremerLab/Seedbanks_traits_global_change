@@ -45,20 +45,7 @@ traitdat3=traitdat2%>%
          SCPpc=(spwetperseed-mass)/mass,
          SCTperW = (SCTmm/W),
          SCTperMass = (SCTmm)/mass)%>%
-  #could create seed structure categories from "lump_dispcat" and LEDA trait standards, 5 seed traits, table 3.4
-  #1 = nutrient rich appendages or structure
-  #2 = balloon structures (e.g. The structures bind air to the diaspores when they are thrown into water and are derived from numerous morphological structures like calyx and crown (e.g. Trifolium), calyx and parts of the stem (e.g. Agrimonia) or bracts and prophylls (e.g. glumes of Poaceae, utricle of Carex))
-  #3 = flat appendages (e.g. wings, fringes of seeds, etc), 3a = small flat appendages (Appendages are classified as ‘small’ if they enlarge the diaspore surface by less than the surface size), 3b = large flat appendages
-  #4 = elongated appendages (Elongated appendages comprise all structures that prominently stick out of the main part   of the diaspore, making the seed look longer (i.e. elongated). In order to apply this category, 
-  #the appendage length must be greater compared to the area where the appendage is attached to the main part of the diaspore. Furthermore the length of the appendage needs
-  #to be at least 1/10th as long as the diameter of the diaspore. )    
-  #5 = no appendages.  5a = diaspores with structured surface, 5b= diaspores with smooth surfaces
-  #6 other
-  #but that traitdata structure doesn't make sense to me - what do higher numbers mean (besides 5 = none?)
-  
-  #instead, create more nuance to the "disp" trait - whether there is a dispersal structure and what type
-  #so 0 = none, 1 = ephemeral, and 2 = persistent structure
-  #moving this up from below:
+  #adjusting dispersal trait, where 0 = none, 1 = ephemeral, and 2 = persistent structure
   mutate(germ_is_disp=ifelse(germ_is_disp=="no",1,0),
          C=C/1000) %>%
     mutate(disp2 = if_else(germ_is_disp == 0 & lump_dispcat %in% c("elong_long", "elong_short", "flat", "balloon"), 2, germ_is_disp))%>%
