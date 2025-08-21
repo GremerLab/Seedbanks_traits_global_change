@@ -1,3 +1,6 @@
+#to do on this script
+#run PCA and subsequent analyses without 7 species missing texture
+
 rm(list = ls()) # clears everything
 library(vegan)
 library(tidyverse)
@@ -5,7 +8,7 @@ library(ggbiplot)
 library(modelsummary)
 library(ggplot2)
 library(cowplot)
-
+library(ggcorrplot)
 ### data prep ####
 # input transformed trait data from 4_traittransformations
 traitdat=read.csv("Cleaned data/transformed_traitdata.csv",header = T) %>%
@@ -183,22 +186,39 @@ plot_grid(figSXa , figSXb  , labels = c("A.", "B."), label_size=14)
 #ggsave("Plots/FigSX_TraitPCA_withconvexhulls.jpg", height = 10, width = 20)
 
 
-#### test significance of differences between PC values ####
-m=aov(data=all2,PC1~nat.inv+Functional.group)
-anova(m)
-TukeyHSD(m)
-m=aov(data=all2,PC2~nat.inv+Functional.group)
-TukeyHSD(m)
-anova(m)
-m=aov(data=all2,PC3~nat.inv+Functional.group)
-TukeyHSD(m)
-anova(m)
-m=aov(data=all2,PC4~nat.inv+Functional.group)
-TukeyHSD(m)
-summary(m)
+#### test significance of differences in PC values among functional groups and origin ####
+#interaction was never significant for origin x functional group (p>0.09) in any anovas or PERManovas so dropped interaction
+permanova_pc1 = adonis2(all2$PC1 ~ origin+Functional.group, method = "euc", data = all2, by= "terms")
+permanova_pc1
 
+m1=aov(data=all2,PC1~origin+Functional.group)
+anova(m1)
+TukeyHSD(m1)
+#permanova and anova are concordant
+
+permanova_pc2 = adonis2(all2$PC2 ~ origin+Functional.group, method = "euc", data = all2, by= "terms")
+permanova_pc2
+m2=aov(data=all2,PC2~origin+Functional.group)
+anova(m2)
+TukeyHSD(m2)
+
+
+permanova_pc3 = adonis2(all2$PC3 ~ origin+Functional.group, method = "euc", data = all2, by= "terms")
+permanova_pc3
+m3=aov(data=all2,PC3~origin+Functional.group)
+TukeyHSD(m3)
+anova(m3)
+
+permanova_pc4 = adonis2(all2$PC4 ~ origin+Functional.group, method = "euc", data = all2, by= "terms")
+permanova_pc4
+m4=aov(data=all2,PC4~origin+Functional.group)
+TukeyHSD(m4)
+summary(m4)
+
+
+#get means #not sure if we need this 
 all2%>%
-  group_by(nat.inv)%>%
+  group_by(origin)%>%
   dplyr::summarise(mean(PC1),mean(PC2),mean(PC3),mean(PC4))
 
 all2%>%
@@ -207,7 +227,7 @@ all2%>%
 
 all2=all2%>%
   mutate(bi_annual=ifelse(annual=="annual", "A","P"))%>%
-  mutate(groupings=paste(nat.inv,Functional.group,sep=""))%>%
+  mutate(groupings=paste(origin,Functional.group,sep=""))%>%
   mutate(groupings=ifelse(bi_annual=="P"& Functional.group=="Forb",paste(bi_annual,groupings,sep = ""),groupings))#
 
 all2$groupings
@@ -216,14 +236,13 @@ all2%>%
   group_by(groupings)%>%
   dplyr::summarise(mean(PC1),mean(PC2),mean(PC3),mean(PC4))
 
-### Run PC without the 7 species missing texture, very similar output - see script 5_PCA_final
+#### Run PC without the 7 species missing texture, very similar output - see script 5_PCA_final
 
-### correlation
-names(traitdat)
-dat_trans=traitdat%>%
-  dplyr::select(SCT,mass,SCP=SCPpc,C,"CN_ratio"=cn,"size"=L,starch, shape="Fit_shape",disp ="germ_is_disp",texture="texture_1",compact="Fit_compact",mucilage,"intensity"=Intensity,P)#
-
-temp=as.data.frame(cor(dat_trans))
-pmat=ggcorrplot::cor_pmat(x = dat_trans)
-ggcorrplot::ggcorrplot(temp,type="upper",p.mat = pmat, lab=T,insig = "blank")
-
+#### Trait correlation matrix, Fig S2 ####
+traits_all = traitdat %>%
+             select(SCT, Mass, SCP, Carbon, CN, Length, Starch, Shape, Disp, Texture, Compact, mucilage, Intensity, Perimeter =P)
+traitcor_all =as.data.frame(cor(traits_all))
+pmat=ggcorrplot::cor_pmat(x = traits_all)
+FigS2 = ggcorrplot::ggcorrplot(traitcor_all,type="upper",p.mat = pmat, lab=T,insig = "blank")
+FigS2
+#ggsave("Plots/FigS2_Traits_correlationmatrix.jpg", height = 10, width = 10)
