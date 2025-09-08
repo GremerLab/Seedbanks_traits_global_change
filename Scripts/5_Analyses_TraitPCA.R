@@ -1,3 +1,8 @@
+#This script:
+#performs principle components analysis on seed functional traits
+#tests for differences in seed functional among functional groups and between origins (native vs. non-native)
+#generates the trait PCA figures and associated supplemental figures
+
 rm(list = ls()) # clears everything
 library(vegan)
 library(tidyverse)
