@@ -6,7 +6,7 @@ library(tidyverse)
 #filelog
 ## IN
 # mf_sm_summary_120222.csv, cn_summary_120222.csv,SCP_summary_120222.csv
-# SBRAbyspecies_tomatch2017_120222.csv
+# SBRAWbyspecies_tomatch2017_120222.csv
 # Germ_expt_Nov2022.csv
 # abovegroundcommunitydata2010_relabundance_28June19.csv
 # abovegroundcommunitydata2017_relabundance_remove0cols_28June19
@@ -24,7 +24,7 @@ library(tidyverse)
 
 #### read in and name clean for germination and relative abundance data ####
 # dat2fixnames=read.csv("Seed Trait Paper/clean_final_subdata/SBRAbyspecies_tomatch2017_120222.csv",header = T,strip.white = T)
-dat2fixnames=read.csv("Cleaned data/SBRAWbyspecies_tomatch2017_05112023.csv",header = T,strip.white = T)
+dat2fixnames=read.csv("Raw data/SBRAWbyspecies_tomatch2017_05112023.csv",header = T,strip.white = T)
 dat2fixnames$prevname=dat2fixnames$species_code  ##here matching with species_code
 dat2fixnames$species_code=NULL
 dat2fixnames$obsID=c(1:length(dat2fixnames$Line))
@@ -34,6 +34,7 @@ dat2fixnames$obsID=c(1:length(dat2fixnames$Line))
  # output = cleannamedat with column clean_code
 SBRAdat=cleannamedat
 
+#write.csv(cleannamedat, "Cleaned data/SBRAWbyspecies_tomatch2017_05112023_cleancode.csv")
 ## Fix name issues that arrise from grouping species. Ex. Agoseris and Agohet are grouped, but while names are all changed to Agohet, values from each are kept as they are separate observations from the seed bank abundance dataframe from Anu (even though one of them is a zero.)
 SBRAdat=SBRAdat%>%
   filter(is.na(clean_code)==F)
@@ -186,9 +187,9 @@ names(SBRAdat)
 "MEDPOL" %in% SBRAdat$clean_code
 
 # write.csv(SBRA_traitdat,"Seed Trait Paper/clean_final_subdata/SBRAW_trait_long_April2023.csv",row.names = F)
-# write.csv(SBRA_traitdat,"Seed Trait Paper/clean_final_subdata/SBRA_trait_long_Jan2023v2.csv",row.names = F)
-# write.csv(SBRA_traitdat,"Seed Trait Paper/clean_final_subdata/SBRA_trait_long_Jan23.csv",row.names = F)
-# write.csv(SBRA_traitdat,"Seed Trait Paper/clean_final_subdata/SBRA_trait_long_Dec2022v3.csv",row.names = F)
+# write.csv(SBRA_traitdat,"Seed Trait Paper/clean_final_subdata/SBRA_trait_long_Jan2023v2.csv",row.names = F) #not current
+# write.csv(SBRA_traitdat,"Seed Trait Paper/clean_final_subdata/SBRA_trait_long_Jan23.csv",row.names = F) #not current
+# write.csv(SBRA_traitdat,"Seed Trait Paper/clean_final_subdata/SBRA_trait_long_Dec2022v3.csv",row.names = F) #not current
 
 traitdat2%>%filter(clean_code=="MEDPOL")
 SBRA_traitdat%>%filter(clean_code=="MEDPOL")
