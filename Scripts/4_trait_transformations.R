@@ -76,6 +76,11 @@ traitdat5=traitdat5%>%
   filter(is.na(L)==F)
 sum(is.na(traitdat5$texture_1)) # 7 sp without texture
 
+missingsp = traitdat5%>%
+  filter(is.na(texture_1)==T)
+missingsp
+unique(missingsp$clean_code)
+
 traitdat5%>%
   filter(is.na(starch))# last 2 values to uptraitdate (naspul and micdou)
 

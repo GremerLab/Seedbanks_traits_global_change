@@ -1,6 +1,3 @@
-#to do on this script
-#run PCA and subsequent analyses without 7 species missing texture
-
 rm(list = ls()) # clears everything
 library(vegan)
 library(tidyverse)
@@ -36,7 +33,7 @@ traitdat_info =traitdat%>%
 names(traitdat_4PCA)
 names(traitdat_info)
 
-#### run PCA ####
+####Trait PCA ####
 trait.pca<-prcomp(traitdat_4PCA, scale=TRUE, center = T)
 summary(trait.pca) 
 round(trait.pca$rotation,2)
@@ -93,7 +90,6 @@ loadingvals = loadingvals%>%
               category == "Barrier" ~ "black", 
               category == "Chemical" ~ "gray35"))
 
-#see how to manually set linetypes and colors for the geom_segment - may need to separate out that call.  
 pc12 <- autoplot(trait.pca, data = all2, colour = 'origin', shape =  "Functional.group", loadings = F, size =2, scale = 0,
                  x=1, y=2) + 
         scale_color_grey(start = 0.4, end = 0.7)+ 
@@ -236,9 +232,134 @@ all2%>%
   group_by(groupings)%>%
   dplyr::summarise(mean(PC1),mean(PC2),mean(PC3),mean(PC4))
 
-#### Run PC without the 7 species missing texture, very similar output - see script 5_PCA_final
+#### PCA without the 7 species missing texture ####
+#from 4_trait_transfromations.R: "CHAGLA" "HYPGLA" "LASCAL" "MICDOU" "SISBEL" "TRIGRA" "RIGLEP"
+traitdat2 = traitdat %>%
+            filter(!species %in% c("CHAGLA", "HYPGLA", "LASCAL", "MICDOU", "SISBEL", "TRIGRA", "RIGLEP"))
+dim(traitdat)
+dim(traitdat2)
 
-#### Trait correlation matrix, Fig S2 ####
+traitdat_4PCA2 =traitdat2%>%
+  dplyr::select(SCT,Mass ,SCP,Carbon, CN ,Length, Starch, Shape, Disp,
+                Texture, Compact)#
+
+traitdat_info2 =traitdat2%>%
+  dplyr::select(species, annual, family, Functional.group, origin, lump_dispcat, mucilage)
+
+## trait PCA without 7 species missing texture
+trait.pca2<-prcomp(traitdat_4PCA2, scale=TRUE, center = T)
+summary(trait.pca2) 
+round(trait.pca2$rotation,2)
+plot(trait.pca2, type = "lines")
+
+## extract loadings for each species
+ind.coord2=trait.pca2$x
+speciesvals2=cbind(species=rownames(traitdat2), ind.coord2)
+speciesvals2=as.data.frame(speciesvals2)
+loadingvals2=trait.pca2$rotation
+loadingvals2=(cbind(trait =paste(rownames(loadingvals2)), loadingvals2))
+loadingvals2=as.data.frame(loadingvals2)
+
+### Graph PCAs with functional type and status ####
+all22= speciesvals2 %>% #joining species PCA scores with the main trait dataframe
+  inner_join(traitdat2)%>%
+  mutate_at(vars(contains('PC')), list(as.numeric)) %>%
+  select(-X)
+
+names(all22)
+dim(all22)
+summary(all22)
+
+#write.csv(all22, "Output data/Traits_PCscores_wo_7species.csv")
+
+funtype_mean2 = all22 %>%
+  group_by(Functional.group)%>%
+  dplyr::summarise(mean(PC1),mean(PC2),mean(PC3),mean(PC4),n())
+
+#add trait category to PCA output
+loadingvals2 = loadingvals2%>%
+  mutate_at(vars(contains('PC')), list(as.numeric)) %>%
+  mutate(category = as.factor(c("Barrier", "Morphological", "Barrier", "Chemical", 
+                                "Chemical", "Morphological", "Chemical",
+                                "Morphological", "Morphological", "Morphological","Morphological"))) %>% 
+  mutate(linetype_group = case_when(
+    category == "Morphological" ~ "solid",
+    category == "Barrier" ~ "longdash", 
+    category == "Chemical" ~ "dotted")) %>%
+  mutate(color_group = case_when(
+    category == "Morphological" ~ "black",
+    category == "Barrier" ~ "black", 
+    category == "Chemical" ~ "gray35"))
+
+pc122 <- autoplot(trait.pca2, data = all22, colour = 'origin', shape =  "Functional.group", loadings = F, size =2, scale = 0,
+                 x=1, y=2) + 
+  scale_color_grey(start = 0.4, end = 0.7)+ 
+  theme_bw()+
+  
+  geom_segment(data = loadingvals2, aes(x=0, y=0, xend = PC1*5, yend = PC2*5, linetype = category), #0.8 just scales loading arrows to fit graph, autoplot does this automatically when plotting loading = T
+               arrow = arrow(length = unit(0.2, "cm"), type= "closed"),  size = 0.75, color = "black")  + #, color = loadingvals$color_group
+  geom_text(data = loadingvals2, mapping = aes(label = trait, x = PC1*5.4, y=PC2*5.4)) +  #multiply by 5.4 to move a little away from arrow
+  scale_linetype_manual(values = c("dashed", "dotted", "solid") )
+
+#add means for functional groups
+fig1a_alt <- pc122 +  geom_point(x=funtype_mean2$`mean(PC1)`[1],y=funtype_mean2$`mean(PC2)`[1], size=6, shape = 1)+
+  geom_point(x=funtype_mean2$`mean(PC1)`[2],y=funtype_mean2$`mean(PC2)`[2], size=6, shape = 2) +
+  geom_point(x=funtype_mean2$`mean(PC1)`[3],y=funtype_mean2$`mean(PC2)`[3], size=6, shape = 0) +
+  theme(legend.direction ="horizontal", legend.position = "bottom", legend.title = element_blank(), text = element_text(size = 14)) + 
+  guides(linetype = "none")
+fig1a_alt
+
+pc342 <- autoplot(trait.pca2, data = all22, colour = 'origin', shape =  "Functional.group", loadings = F, size =2, scale = 0,
+                 x=3, y=4) + 
+  scale_color_grey(start = 0.4, end = 0.7)+ 
+  theme_bw()+
+  geom_segment(data = loadingvals2, aes(x=0, y=0, xend = PC3*5, yend = PC4*5, linetype = category), #0.8 just scales loading arrows to fit graph, autoplot does this automatically when plotting loading = T
+               arrow = arrow(length = unit(0.2, "cm"), type= "closed"),  size = 0.75, color = "black")  + #, color = loadingvals$color_group
+  geom_text(data = loadingvals2, mapping = aes(label = trait, x = PC3*5.4, y=PC4*5)) +  #multiply by 5.4 to move a little away from arrow
+  scale_linetype_manual(values = c("dashed", "dotted", "solid") )
+
+#add means for functional groups
+fig1b_alt <- pc342 +  geom_point(x=funtype_mean2$`mean(PC3)`[1],y=funtype_mean2$`mean(PC4)`[1], size=6, shape = 1)+
+  geom_point(x=funtype_mean2$`mean(PC3)`[2],y=funtype_mean2$`mean(PC4)`[2], size=6, shape = 2) +
+  geom_point(x=funtype_mean2$`mean(PC3)`[3],y=funtype_mean2$`mean(PC4)`[3], size=6, shape = 0) +
+  theme(legend.direction = "horizontal", legend.position = "bottom", legend.title = element_blank(), text = element_text(size = 14)) + 
+  guides(shape = "none", color = "none")
+fig1b_alt 
+
+
+####Alt Trait PCA figure without 7 species missing texture ####
+plot_grid(fig1a_alt , fig1b_alt  , labels = c("A.", "B."), label_size=14)
+
+#### Test for multivariate trait differences without 7 species ####
+#interaction was never significant for origin x functional group (p>0.09) in any anovas or PERManovas so dropped interaction
+permanova_pc12 = adonis2(all22$PC1 ~ origin+Functional.group, method = "euc", data = all22, by= "terms")
+permanova_pc12
+
+m12=aov(data=all22,PC1~origin+Functional.group)
+anova(m12)
+TukeyHSD(m12)
+#permanova and anova are concordant
+
+permanova_pc22 = adonis2(all22$PC2 ~ origin+Functional.group, method = "euc", data = all22, by= "terms")
+permanova_pc22
+m22=aov(data=all22,PC2~origin+Functional.group)
+anova(m22)
+TukeyHSD(m22)
+
+
+permanova_pc32 = adonis2(all22$PC3 ~ origin+Functional.group, method = "euc", data = all22, by= "terms")
+permanova_pc32
+m32=aov(data=all22,PC3~origin+Functional.group)
+TukeyHSD(m32)
+anova(m32)
+
+permanova_pc42 = adonis2(all22$PC4 ~ origin+Functional.group, method = "euc", data = all22, by= "terms")
+permanova_pc42
+m42=aov(data=all22,PC4~origin+Functional.group)
+TukeyHSD(m42)
+summary(m42)
+
+####traitdat#### Trait correlation matrix, Fig S2 ####
 traits_all = traitdat %>%
              select(SCT, Mass, SCP, Carbon, CN, Length, Starch, Shape, Disp, Texture, Compact, mucilage, Intensity, Perimeter =P)
 traitcor_all =as.data.frame(cor(traits_all))
