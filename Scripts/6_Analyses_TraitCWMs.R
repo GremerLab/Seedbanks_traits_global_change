@@ -45,5 +45,27 @@ rawab = full_join(rawab_plots, rawab_wtraits)
 all_abtraits = left_join(abund_trait_dat, rawab) %>%
                mutate(relab = rawcount/totplotincmissing) %>%
                mutate(relab_traitsonly = rawcount/totplottraits) #shouldn't use this
+
+#double check that relative abundance is correct (should add to 1 for each plot)
+summary(all_abtraits %>% 
+  group_by(Plot) %>%
+  summarize(sumrelab = sum(relab, na.rm=T)))
     
 #### calculate CWMs ####
+#Note that JRG did this slightly differently than ECE dissertation 
+#first, get trait value * relative abundance for each species in each plot 
+cwmdat_a = all_abtraits %>%
+         mutate(across(c(SCT,Mass ,SCP,Carbon, CN ,Length, Starch, Shape, Disp,
+                         Texture, Compact), ~.x*relab, .names = "{.col}_CWM")) %>%
+         mutate(across(starts_with("PC"), ~.x*relab,.names = "{.col}_CWM") ) 
+
+#next, sum for each plot to get a plot level CWM
+cwmdat = cwmdat_a %>%
+         group_by(Line, habitat, watering, fertilization, WFtreatment, Plot) %>%
+         summarize(across(ends_with("_CWM"), ~sum(.x, na.rm=T)))%>%
+         ungroup()
+
+summary(cwmdat)        
+dim(cwmdat) #90 plots
+str(cwmdat)
+#write.csv(cwmdat, "Output data/CWMs_traits_PCs.csv")
