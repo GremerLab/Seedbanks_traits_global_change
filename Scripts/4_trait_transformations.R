@@ -1,5 +1,8 @@
 ### 
+### this script transforms and formats traits for PCA and CWM analyses 
 rm(list = ls()) # clears everything
+
+#load libraries
 library(vegan)
 library(tidyverse)
 library(ggbiplot)

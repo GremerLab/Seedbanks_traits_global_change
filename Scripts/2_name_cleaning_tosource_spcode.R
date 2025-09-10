@@ -1,5 +1,3 @@
-
-
 ## Things to run in referencing script
 # rm(list = ls()) # clears everything
 # library(tidyverse)
