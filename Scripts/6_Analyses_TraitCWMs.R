@@ -519,6 +519,9 @@ plot_grid(a + theme(legend.position = "none"),
           g,
           ncol = 2, nrow = 3,
           labels = c("A.", "B.", "C.", "D.", "E.", "F.", "G."), label_size=14)
+#note, can't get formatting to look good with really long panel
+
 #ggsave("Plots/Fig2_CWMresponses.jpg", height = 10, width = 15)
 e
 #ggsave("Plots/Fig2_CWMresponses_length.jpg", height = 5, width = 8)
+
