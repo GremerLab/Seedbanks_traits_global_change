@@ -12,8 +12,6 @@ library(MuMIn)
 library(modelsummary)
 library(kableExtra) #tables of model output
 library(emmeans) #post hoc contrasts
-#library(multcomp) #for cld function
-#library(multcompView)
 library(ggplot2)
 
 traitdat = read.csv("Output data/Traits_PCscores_all.csv") #see 5_Analyses_TraitPCA.R for script generating this file
@@ -57,7 +55,9 @@ rawab = full_join(rawab_plots, rawab_wtraits)
 
 all_abtraits = left_join(abund_trait_dat, rawab) %>%
                mutate(relab = rawcount/totplotincmissing) %>%
-               mutate(relab_traitsonly = rawcount/totplottraits) 
+               mutate(relab_traitsonly = rawcount/totplottraits) %>%
+               mutate(habitat = fct_recode(habitat, "Harsh" = "Harshserp", "Lush" = "Lushserp")) %>%
+               mutate(WFtreatment = fct_recode(WFtreatment, "R" = "W", "N" = "F", "NR" = "FW"))
 #all_abtraits will have some relab_traitsonly greater than 1, this is species that don't have trait values
 #so, their CWM trait values will be NA, so no need to filter them out here
 summary(all_abtraits)
@@ -90,7 +90,8 @@ cwmdat = cwmdat_a %>%
          summarize(across(ends_with("_CWM"), ~sum(.x, na.rm=T)))%>%
          ungroup()%>%
          mutate(watering=as.factor(ifelse(watering=="unwatered","none","watered")),
-         fertilization=as.factor(ifelse(fertilization=="unfertilized","none","fertilized")))
+         fertilization=as.factor(ifelse(fertilization=="unfertilized","none","fertilized"))) %>%
+         mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","R", "N", "NR"))) #to match Eskelinen et al. 2021
 
 summary(cwmdat)        
 dim(cwmdat) #90 plots
@@ -250,35 +251,65 @@ for (i in 1:length(cwmtraitlist)){
 
 
 #### Post-hoc contrasts ####
+library(multcomp)
 ##SCT ##
 #3 way is sig
 SCT_lm =lme(SCT_CWM ~ habitat*watering*fertilization,random=~1|Line, data=cwmdat,na.action=na.exclude,method = "REML")
 anova(SCT_lm)
 
-SCT_emm = emmeans(SCT_lm,  ~ habitat|watering|fertilization) 
-cld_SCT = emmeans::cld(SCT_emm, 
+SCT_emm = emmeans(SCT_lm,  ~ habitat*watering*fertilization) 
+
+cld_SCT = as.data.frame(cld(SCT_emm, 
                   adjust = "Tukey",     # p-value adjustment
                   Letters = letters,    # Specify letters to use
                   alpha = 0.05,         # Significance level
-                  reversed = TRUE)      # Sort means in decreasing order
+                  reversed = TRUE) )  %>%    # Sort means in decreasing order
+          rename(SCT_letters = .group)  %>% # Rename the letters column
+          mutate(WFtreatment = as.factor(case_when(
+                watering == "none" & fertilization == "none" ~ "C",
+                watering == "watered" & fertilization == "none" ~ "R",
+                watering == "none" & fertilization == "fertilized" ~ "N",
+                watering == "watered" & fertilization == "fertilized" ~ "NR"
+          ))) %>%
+      mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","R", "N", "NR")))
+          
 ## Mass ##
 #2 way: hab x fert is sig #
+m1=lme((responsevar)~ habitat*watering+habitat*fertilization+watering*fertilization,random=~1|Line, data=modeldat,na.action=na.exclude,method = "REML")
 
 ## SCP ##
 #2 way: hab x watering is sig #
+m1=lme((responsevar)~ habitat*watering+habitat*fertilization+watering*fertilization,random=~1|Line, data=modeldat,na.action=na.exclude,method = "REML")
 
 ## CN ##
 #Only main effects of habitat and fertilization are sig #
+m2=lme((responsevar)~ habitat+ watering+ fertilization,random=~1|Line, data=modeldat,na.action=na.exclude,method = "REML")
 
 ## Length ## 
 #2 way: hab x fert is sig #
+m1=lme((responsevar)~ habitat*watering+habitat*fertilization+watering*fertilization,random=~1|Line, data=modeldat,na.action=na.exclude,method = "REML")
 
 ## Starch ## 
 #2 ways: hab x fert and hab x watering are sig #
+m1=lme((responsevar)~ habitat*watering+habitat*fertilization+watering*fertilization,random=~1|Line, data=modeldat,na.action=na.exclude,method = "REML")
 
 ## Shape ##
 #habitat x fert is sig #
+m1=lme((responsevar)~ habitat*watering+habitat*fertilization+watering*fertilization,random=~1|Line, data=modeldat,na.action=na.exclude,method = "REML")
 
 
 
 #### Figures ####
+sctplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=SCT_CWM, fill = habitat))+
+  geom_boxplot(position = position_dodge(.9))+
+  labs(title="",subtitle = "",y="Community weighted mean SCT", x="")+
+  scale_fill_grey(start=0.9, end=0.4) +
+  scale_color_grey(start=0.4, end=0.7) +
+  #facet_grid(rows = vars(type), cols=vars(habitat),switch="y",scales = "free")+
+  theme_bw()+
+  theme(panel.spacing = unit(0, units = "cm"), 
+        legend.position = "bottom",legend.title = element_blank()) + labs(fill = "Habitat")
+
+sctplot + geom_text(data = cld_SCT, aes( x = WFtreatment_order, y = 2, group = habitat, label = SCT_letters ),
+                    position = position_dodge(width = 0.9))
+
