@@ -109,7 +109,8 @@ pc12 <- autoplot(trait.pca, data = all2, colour = 'origin', shape =  "Functional
 fig1a <- pc12 +  geom_point(x=funtype_mean$`mean(PC1)`[1],y=funtype_mean$`mean(PC2)`[1], size=6, shape = 1)+
   geom_point(x=funtype_mean$`mean(PC1)`[2],y=funtype_mean$`mean(PC2)`[2], size=6, shape = 2) +
   geom_point(x=funtype_mean$`mean(PC1)`[3],y=funtype_mean$`mean(PC2)`[3], size=6, shape = 0) +
-  theme(legend.direction ="horizontal", legend.position = "bottom", legend.title = element_blank(), text = element_text(size = 14)) + 
+  theme(legend.direction ="horizontal", legend.position = "bottom", legend.title = element_blank(), 
+        text = element_text(size = 14), legend.key.width = unit(2, "line")) + 
   guides(linetype = "none")
 fig1a
 
@@ -126,7 +127,8 @@ pc34 <- autoplot(trait.pca, data = all2, colour = 'origin', shape =  "Functional
 fig1b <- pc34 +  geom_point(x=funtype_mean$`mean(PC3)`[1],y=funtype_mean$`mean(PC4)`[1], size=6, shape = 1)+
   geom_point(x=funtype_mean$`mean(PC3)`[2],y=funtype_mean$`mean(PC4)`[2], size=6, shape = 2) +
   geom_point(x=funtype_mean$`mean(PC3)`[3],y=funtype_mean$`mean(PC4)`[3], size=6, shape = 0) +
-  theme(legend.direction = "horizontal", legend.position = "bottom", legend.title = element_blank(), text = element_text(size = 14)) + 
+  theme(legend.direction = "horizontal", legend.position = "bottom", legend.title = element_blank(), 
+        text = element_text(size = 14),  legend.key.width = unit(2, "line")) + 
   guides(shape = "none", color = "none")
 fig1b 
 
