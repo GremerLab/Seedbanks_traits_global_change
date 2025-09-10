@@ -8,10 +8,12 @@ library(vegan)
 library(tidyverse)
 library(modelsummary)
 library(nlme)
-library(broom.mixed) #to output pvalues of lme models to table
 library(MuMIn)
 library(modelsummary)
-library(kableExtra)
+library(kableExtra) #tables of model output
+library(emmeans) #post hoc contrasts
+#library(multcomp) #for cld function
+#library(multcompView)
 library(ggplot2)
 
 traitdat = read.csv("Output data/Traits_PCscores_all.csv") #see 5_Analyses_TraitPCA.R for script generating this file
@@ -87,8 +89,8 @@ cwmdat = cwmdat_a %>%
          group_by(Line, habitat, watering, fertilization, WFtreatment, Plot) %>%
          summarize(across(ends_with("_CWM"), ~sum(.x, na.rm=T)))%>%
          ungroup()%>%
-         mutate(watering=ifelse(watering=="unwatered","none",watering),
-         fertilization=ifelse(fertilization=="unfertilized","none",fertilization))
+         mutate(watering=as.factor(ifelse(watering=="unwatered","none","watered")),
+         fertilization=as.factor(ifelse(fertilization=="unfertilized","none","fertilized")))
 
 summary(cwmdat)        
 dim(cwmdat) #90 plots
@@ -247,7 +249,36 @@ for (i in 1:length(cwmtraitlist)){
 }
 
 
-#### selected post-hoc contrasts ####
+#### Post-hoc contrasts ####
+##SCT ##
+#3 way is sig
+SCT_lm =lme(SCT_CWM ~ habitat*watering*fertilization,random=~1|Line, data=cwmdat,na.action=na.exclude,method = "REML")
+anova(SCT_lm)
+
+SCT_emm = emmeans(SCT_lm,  ~ habitat|watering|fertilization) 
+cld_SCT = emmeans::cld(SCT_emm, 
+                  adjust = "Tukey",     # p-value adjustment
+                  Letters = letters,    # Specify letters to use
+                  alpha = 0.05,         # Significance level
+                  reversed = TRUE)      # Sort means in decreasing order
+## Mass ##
+#2 way: hab x fert is sig #
+
+## SCP ##
+#2 way: hab x watering is sig #
+
+## CN ##
+#Only main effects of habitat and fertilization are sig #
+
+## Length ## 
+#2 way: hab x fert is sig #
+
+## Starch ## 
+#2 ways: hab x fert and hab x watering are sig #
+
+## Shape ##
+#habitat x fert is sig #
+
 
 
 #### Figures ####
