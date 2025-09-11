@@ -26,7 +26,7 @@ names(traitdat)
 summary(traitdat)
 dim(traitdat)
 rownames(traitdat) = traitdat$species
-
+length(unique(traitdat$species))
 #split up dataframe into values vs metadata to run PCA
 traitdat_4PCA =traitdat%>%
   dplyr::select(SCT,Mass ,SCP,Carbon, CN ,Length, Starch, Shape, Disp,

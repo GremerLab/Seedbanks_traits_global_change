@@ -1,4 +1,4 @@
-#TO DO on this script: need missing files 
+#TO DO on this script: need missing files, complete clean up
 
 rm(list = ls()) # clears everything
 library(tidyverse)

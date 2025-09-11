@@ -75,7 +75,10 @@ summary(all_abtraits %>%
           filter(is.na(Mass)==F & is.na(CN)==F)  %>% 
           group_by(Plot) %>%
           summarize(sumrelab = sum(relab, na.rm=T))) #median = 90%, mean = 79.9%
-    
+
+#save trait and abundance data 
+#write.csv(all_abtraits, "Cleaned data/Transformed trait data_with abundance.csv")
+
 #### calculate CWMs ####
 #Note that JRG did this slightly differently than ECE dissertation 
 #first, get trait value * relative abundance for each species in each plot
