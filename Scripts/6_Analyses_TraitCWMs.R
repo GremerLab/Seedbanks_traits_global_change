@@ -71,10 +71,11 @@ summary(all_abtraits %>%
   summarize(sumrelab = sum(relab, na.rm=T)))
 
 #check what coverage we have for species that we do have traits
-summary(all_abtraits %>% 
+relabsummary = all_abtraits %>% 
           filter(is.na(Mass)==F & is.na(CN)==F)  %>% 
           group_by(Plot) %>%
-          summarize(sumrelab = sum(relab, na.rm=T))) #median = 90%, mean = 79.9%
+          summarize(sumrelab = sum(relab, na.rm=T)) #median = 90%, mean = 79.9%
+sd(relabsummary$sumrelab)
 
 #save trait and abundance data 
 #write.csv(all_abtraits, "Cleaned data/Transformed trait data_with abundance.csv")
