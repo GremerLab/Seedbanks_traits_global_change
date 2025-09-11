@@ -56,4 +56,4 @@ allsbsp2 = left_join(allsbsp, spmeta, by = "Species") %>%
 
 summary(allsbsp2)
 dim(allsbsp2) #why did it add 12 species? 
-#write.csv(allsbsp2, "Cleaned data/Species list.csv")
+#write.csv(allsbsp2, "Output data/Species list.csv")
