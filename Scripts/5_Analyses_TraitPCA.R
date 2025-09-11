@@ -197,27 +197,34 @@ permanova_pc1
 m1=aov(data=all2,PC1~origin+Functional.group)
 anova(m1)
 TukeyHSD(m1)
-#permanova and anova are concordant
+#permanova and anova are concordant, and PC1 varies by functional group and origin 
+#Grasses have lower PC1 than forbs, N-fixers have higher PC1 than grasses
+#native have higher PC1 than non-native 
 
 permanova_pc2 = adonis2(all2$PC2 ~ origin+Functional.group, method = "euc", data = all2, by= "terms")
 permanova_pc2
 m2=aov(data=all2,PC2~origin+Functional.group)
 anova(m2)
 TukeyHSD(m2)
-
+#only sig difference is for functional group
+#N fixers have higher PC2 than forbs and grasses
 
 permanova_pc3 = adonis2(all2$PC3 ~ origin+Functional.group, method = "euc", data = all2, by= "terms")
 permanova_pc3
 m3=aov(data=all2,PC3~origin+Functional.group)
 TukeyHSD(m3)
 anova(m3)
+#origin is sig in permanova
+#permanova is more sig than anova, which is marginal p-0.053
+#non-native have higher PC3 than native
 
 permanova_pc4 = adonis2(all2$PC4 ~ origin+Functional.group, method = "euc", data = all2, by= "terms")
 permanova_pc4
 m4=aov(data=all2,PC4~origin+Functional.group)
 TukeyHSD(m4)
-summary(m4)
-
+anova(m4)
+#functional group is sig, same in both permanova and anova, but contrasts aren't sig.  
+#n-fixers have lower PC4 than natives (p=0.07)
 
 #get means #not sure if we need this 
 all2%>%
