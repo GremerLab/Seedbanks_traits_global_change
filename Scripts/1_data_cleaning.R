@@ -94,7 +94,7 @@ head(SCP_summary)
 # write.csv(SCP_summary,"Cleaned data/SCP_summary.csv",row.names = F)
 
 #### Starch content ####
-Starch=read.csv("Raw data/Starch_20221222.csv", header=T, strip.white = T) #missing file, need to get from Elise
+Starch=read.csv("Raw data/Starch.csv", header=T, strip.white = T) #missing file, need to get from Elise
 
 Starch=Starch%>%select(IDnum="Idnum",starch,mucilage)
 
