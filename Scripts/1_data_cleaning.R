@@ -90,15 +90,15 @@ SCP_summary=SCP%>%
                       SS_SCP=sum(fulldata,na.rm=T))
 head(SCP_summary)
 
-# write.csv(SCP,"Cleaned data/SCP_120222.csv",row.names = F)
-# write.csv(SCP_summary,"Cleaned data/SCP_summary_120222.csv",row.names = F)
+# write.csv(SCP,"Cleaned data/SCP.csv",row.names = F)
+# write.csv(SCP_summary,"Cleaned data/SCP_summary.csv",row.names = F)
 
 #### Starch content ####
 Starch=read.csv("Raw data/Starch_20221222.csv", header=T, strip.white = T) #missing file, need to get from Elise
 
 Starch=Starch%>%select(IDnum="Idnum",starch,mucilage)
 
-#write.csv(Starch, "Cleaned data/Starch_20221222.csv")
+#write.csv(Starch, "Cleaned data/Starch.csv")
 
 ## CN data cleaning (Elise's and Marina's samples) ####
 cndat=read.csv("Raw data/CN.csv",header=T)
@@ -182,7 +182,7 @@ cndat1%>%filter(ID !=newID)%>%mutate(cn=C/N)%>%arrange(newID)
 ## These are close enough to ignore - I don't have enough data to really quantify any differences.
 # NOTE CENSOL light and dark are very different!dark is much higher (far LESS nitrogen) than light seed
 
-# write.csv(cn_summary_full,"Cleaned data/cn_summary_120222.csv",row.names = F)
+# write.csv(cn_summary_full,"Cleaned data/cn_summary.csv",row.names = F)
 
 
 ### Seed mass ####
@@ -212,8 +212,8 @@ MF_sm=dat1%>%
   full_join(MF_sm_summary)
 
 #rm(massdat,massdat1)
-# write.csv(MF_sm,"Cleaned data/mf_sm_120222.csv",row.names = F)
-# write.csv(MF_sm_summary,"Cleaned data/mf_sm_summary_120222.csv",row.names = F)
+# write.csv(MF_sm,"Cleaned data/mf_sm.csv",row.names = F)
+# write.csv(MF_sm_summary,"Cleaned data/mf_sm_summary.csv",row.names = F)
 
 
 #### Length, 3D shape, compactness, seed texture from Videometer ####
@@ -342,9 +342,9 @@ VM_summary=VMdatblobs%>%
   group_by(IDnum,clean_code)%>%
   summarise(across(everything(),c(mean,sd)))
 
-# write.csv(VM_summary,"Cleaned data/VM_byspecies_Jan20.csv",row.names = F)
+# write.csv(VM_summary,"Cleaned data/VM_byspecies.csv",row.names = F)
 
-# write.csv(VMdatblobs,"Cleaned data/VM_byblobs_Jan20.csv",row.names = F)
+# write.csv(VMdatblobs,"Cleaned data/VM_byblobs.csv",row.names = F)
 
 
 head(VM_summary)
@@ -398,7 +398,7 @@ Morph3=Morph2%>%
   select(IDnum="sp..",germ_is_disp,lump_dispcat)%>%
   distinct()
 
-#write out morphological data here # ####Need to do ####
+#write out morphological data here # 
 
 #### Relative Abundance of seedbank dataprep ####
 abundat=read.csv("Raw data/seedbankgrowoutallyrs_wide_totnumseedlings_tomatch2017.csv") # 90 by 147 unknowns
@@ -421,7 +421,7 @@ head(SBRA_tomatch2017)
 unique(SBRA_tomatch2017$species_code)
 
 
-# write.csv(SBRA_tomatch2017,"Cleaned data/SBRAWbyspecies_tomatch2017_05112023.csv",row.names = F)
+# write.csv(SBRA_tomatch2017,"Cleaned data/SBRAWbyspecies_tomatch2017.csv",row.names = F)
 
 
 
