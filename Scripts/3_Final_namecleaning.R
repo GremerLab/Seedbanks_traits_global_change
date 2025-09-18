@@ -1,5 +1,3 @@
-#TO DO on this script: need missing files, complete clean up
-
 rm(list = ls()) # clears everything
 library(tidyverse)
 
@@ -8,8 +6,6 @@ library(tidyverse)
 # mf_sm_summary_120222.csv, cn_summary_120222.csv,SCP_summary_120222.csv
 # SBRAWbyspecies_tomatch2017_120222.csv
 # Germ_expt_Nov2022.csv
-# abovegroundcommunitydata2010_relabundance_28June19.csv
-# abovegroundcommunitydata2017_relabundance_remove0cols_28June19
 
 ## Run within this script
 # source("Seed Trait Paper/Scripts/name_cleaning_tosource_spcode.R")
@@ -19,8 +15,6 @@ library(tidyverse)
 # trait_data_Dec22.csv
 # Germ_Dec22.csv
 # SBRA_trait_long_Dec2022.csv
-# AGRA_2010_long_Dec2022.csv,AGRA_2017_long_Dec2022.csv
-# AGRA_summarydat_Dec2022.csv
 
 #### read in and name clean for germination and relative abundance data ####
 # dat2fixnames=read.csv("Seed Trait Paper/clean_final_subdata/SBRAbyspecies_tomatch2017_120222.csv",header = T,strip.white = T)
@@ -164,13 +158,7 @@ SCT=read.csv("Seed Trait Paper/clean_final_subdata/SCT_micrometer.csv",header=T)
 traitdat=traitdat%>%
   left_join(SCT)
 
-# write.csv(traitdat,"Seed Trait Paper/clean_final_subdata/trait_data_Apr11.csv",row.names = F)
-# write.csv(traitdat,"Seed Trait Paper/clean_final_subdata/trait_data_Jan20.csv",row.names = F)
-# write.csv(traitdat,"Seed Trait Paper/clean_final_subdata/trait_data_Jan17.csv",row.names = F)
-  # write.csv(traitdat,"Seed Trait Paper/clean_final_subdata/trait_data_Dec23.csv",row.names = F)
- # write.csv(traitwithgerm,"Seed Trait Paper/clean_final_subdata/Germ_Dec22.csv",row.names = F)
-
-
+# write.csv(traitdat,"Seed Trait Paper/clean_final_subdata/trait_data.csv",row.names = F)
 SBRA_traitdat=SBRAdat%>%
   full_join(traitdat, by =c("IDnum"="IDnum","clean_code"="clean_code"))%>%
   distinct()
@@ -199,124 +187,4 @@ a=splist2 %in% splist1
 data.frame(a,splist2)%>%
   filter(a==0)
 
-######### Aboveground #####
-### Look at species distributions from 2010. Fix names. 
-#2010
-dat=read.csv("Data/abovegroundcommunitydata2010_relabundance_28June19.csv", header=T)
-names(dat)
-dat=dat[10:length(dat)]
-dat1=dat%>%
-  pivot_longer( names_to = "Species", cols = -Plot)%>%
-  filter(value>0)%>%
-  group_by(Species)%>%
-  summarise(nplots2010=n(),maxcov2010=max(value))
 
-head(dat1)
-
-dat2fixnames=dat%>%
-  pivot_longer( names_to = "prevname", cols = -Plot, values_to = "AGRA_2010")%>%
-  filter(AGRA_2010>0)
-
-dat2fixnames$obsID=c(1:length(dat2fixnames$Plot))
-head(dat2fixnames)
-
-# input dat2fixnames with column prevname for the code
-source("Seed Trait Paper/Scripts/2_name_cleaning_tosource_spcode.R")
-# output = cleannamedat with column clean_code
-AGRA_2010dat=cleannamedat
-head(cleannamedat)
-AGRA_2010dat$obsID=NULL
-
-#2017 species and plots aboveground cover
-# dat=read.csv("Data/abovegroundcommunitydata2017_relabundance_remove0cols_28June19.csv", header=T) # relative cover is 127 species in 90 plots
-
-dat=read.csv("Anu Paper/datafiles/aboveground community 2017_raw abund_for Jenny_zerocolumns removed from Anu_27Feb2020_lumpspecies.csv",header=T) # raw is 91 rows by 107 columns: row 91 is species totals
-names(dat)
-dat=dat[13:length(dat)]
-
-## OVERVIEW OF COMMON SPECIES
-dat2=dat%>%
-  pivot_longer( names_to = "Species", cols = -Plot)%>%
-  filter(value>0)%>%
-  group_by(Species)%>%
-  summarise(nplots2017=n(),maxcov2017=max(value))
-
-head(dat2)
-
-dat2fixnames=dat%>%
-  pivot_longer( names_to = "prevname", cols = -Plot, values_to = "AGRA_2017")%>%
-  filter(AGRA_2017>0)
-
-dat2fixnames$obsID=c(1:length(dat2fixnames$Plot))
-head(dat2fixnames)
-
-# input dat2fixnames with column prevname for the code
-source("Seed Trait Paper/Scripts/2_name_cleaning_tosource_spcode.R")
-# output = cleannamedat with column clean_code
-AGRA_2017dat=cleannamedat
-head(cleannamedat)
-AGRA_2017dat$obsID=NULL
-# 
-# # 
-# write.csv(AGRA_2010dat,"Seed Trait Paper/clean_final_subdata/AGRA_2010_long_Dec2022.csv",row.names = F)
-# write.csv(AGRA_2017dat,"Seed Trait Paper/clean_final_subdata/AGRA_2017_long_Dec2022.csv",row.names = F)
-
-## AGRA_summarydat
-dat2fixnames=dat1%>%
-  full_join(dat2)%>%
-  mutate(prevname=Species)%>%
-  select(-Species)
-dat2fixnames$obsID=c(1:length(dat2fixnames$prevname))
-source("Seed Trait Paper/Scripts/2_name_cleaning_tosource_spcode.R")
-head(cleannamedat)
-AGRA_summarydat=cleannamedat%>%
-  select(-obsID)%>%
-  distinct()
-head(AGRA_summarydat)
-# write.csv(AGRA_summarydat,"Seed Trait Paper/current_csv files/AGRA_summarydat_Dec2022.csv",row.names = F)
-
-
-## Combined AGRAdata
-comboAGRA=AGRA_2010dat%>%
-  full_join(AGRA_2017dat)
-
-comboAGBG=comboAGRA%>%
-  full_join(SBRA_traitdat)
-
-## quick check for duplicates
-temp=comboAGBG%>%
-  group_by(Plot,clean_code,IDnum)%>%
-  summarise(numobs=n(),nvalues=sum(is.na(truecover)==F))%>%
-  distinct()
-
-temp=temp%>%filter(nvalues>1)
-unique(temp$clean_code) 
-unique(temp$Plot)
-
-temp2=temp%>%
-  inner_join(comboAGBG)%>%
-  select(-AGRA_2010)%>%
-  distinct()
-
-temp3=temp2%>%anti_join(temp)
-
-dat%>%
-  filter(Plot=="107")
-
-## issue is that in 2010 data there is Tribif, Trigra, and Tribifgra. We combine these into one category= Trigra
-# one in 2017
-
-# Fix
-temp=comboAGBG%>%
-  group_by(Plot,clean_code,IDnum)%>%
-  summarise(numobs=n(),nvalues=sum(is.na(truecover)==F))%>%
-  filter(nvalues>1)%>%
-  distinct()
-
-OGdat=comboAGBG%>%
-  anti_join(temp)
-
-tofixdat=comboAGBG%>%
-  inner_join(temp)%>%
-  group_by(all_of(c(-starts_with("ABRA"))))%>%
-  summarise(nrows=n())

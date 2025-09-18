@@ -14,7 +14,7 @@
 ##Autorun from here#####
 
 # Species name data
-spnames=read.csv("Cleaned data/updated_name_issues2_withIDsforall_Dec2022.csv",header=T, strip.white = T)
+spnames=read.csv("Cleaned data/updated_name_issues2_withIDsforall.csv",header=T, strip.white = T)
 
 if("IDnum" %in% names(dat2fixnames)==T){
   spnames=spnames%>%

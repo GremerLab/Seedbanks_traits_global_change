@@ -1,5 +1,3 @@
-## To do on this script - replace "dat" names with dataframe specific names
-#make sure all files write out correctly - done except starch and dispersal data since missing files
 #edit origin = native vs non-native once have all files
 
 rm(list = ls()) # clears everything
