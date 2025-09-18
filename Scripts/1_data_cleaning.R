@@ -188,16 +188,16 @@ cndat1%>%filter(ID !=newID)%>%mutate(cn=C/N)%>%arrange(newID)
 
 
 ### Seed mass ####
-dat=read.csv("Raw data/seedmass_20200228.csv",header=T)
+massdat=read.csv("Raw data/seedmass_20200228.csv",header=T)
 
-names(dat)
-unique(dat$species_code)
+names(massdat)
+unique(massdat$species_code)
 
 # fix NA's
-dat=dat%>%
+massdat=massdat%>%
   mutate(species_code=ifelse(is.na(species_code),species,species_code))
 
-dat1=dat%>%
+dat1=massdat%>%
   select(species_code,total_seed_mass_g,nseeds=Total._seeds_weighed,species)%>%
   mutate(seed_mass=total_seed_mass_g/nseeds)
 
@@ -213,7 +213,7 @@ MF_sm=dat1%>%
   select(species_code,seed_mass)%>%
   full_join(MF_sm_summary)
 
-#rm(dat,dat1)
+#rm(massdat,massdat1)
 # write.csv(MF_sm,"Cleaned data/mf_sm_120222.csv",row.names = F)
 # write.csv(MF_sm_summary,"Cleaned data/mf_sm_summary_120222.csv",row.names = F)
 
@@ -403,33 +403,25 @@ Morph3=Morph2%>%
 #write out morphological data here # ####Need to do ####
 
 #### Relative Abundance of seedbank dataprep ####
-
-# dat1=read.csv("Anu Paper/datafiles/seedbankgrowoutallyrs_wide_relabun_LUMPunknowns_tomatch2017.csv") # 90 by 129 lumped unknowns
-# dat1=read.csv("Anu Paper/datafiles/seedbankgrowoutallyrs_wide__totnumseedlings_tomatch2017_withlumpedunknowns.csv") # 90 by 129 lumped unknowns # This is same as relative abundance data. switch to raw abundance values April 2023
-# dat1=read.csv("Anu Paper/datafiles/seedbankgrowoutallyrs_wide_abovefirst_totnumseedlings.csv") # 90 by 147 unknowns, has NAS
-dat1=read.csv("Raw data/seedbankgrowoutallyrs_wide_totnumseedlings_tomatch2017.csv") # 90 by 147 unknowns
+abundat=read.csv("Raw data/seedbankgrowoutallyrs_wide_totnumseedlings_tomatch2017.csv") # 90 by 147 unknowns
 # has zeros
-names(dat1)
+names(abundat)
 
 
-## using dat1: seed bank rel abundances with unknowns lumped - change to long format.
-names(dat1)
-relcover3=dat1[,11:length(dat1)]%>%
+## using abundat: seed bank rel abundances with unknowns lumped - change to long format.
+names(abundat)
+relcover3=abundat[,11:length(abundat)]%>%
   # select(!contains("UNK")) %>%
   pivot_longer(!Plot, values_to = "relcover",names_to ="species_code",values_drop_na = T)
 
-SBRA_tomatch2017=dat1%>%
+SBRA_tomatch2017=abundat%>%
   select("Line","habitat","watering","fertilization","WFtreatment","Plot")%>%
   full_join(relcover3)#%>%
   # filter(relcover>0)  For now keep all rows - even 0's to preserve empty species. 
 
-# write.csv(SBRA_tomatch2017,"Seed Trait Paper/current_csv files/cleandat_SBbyspecies_tomatch2017.csv",row.names = F)
 head(SBRA_tomatch2017)
 unique(SBRA_tomatch2017$species_code)
 
-#rm(dat1,relcover3)
-
-# write.csv(SBRA_tomatch2017,"Cleaned dataSBRAbyspecies_tomatch2017_120222.csv",row.names = F)
 
 # write.csv(SBRA_tomatch2017,"Cleaned data/SBRAWbyspecies_tomatch2017_05112023.csv",row.names = F)
 
