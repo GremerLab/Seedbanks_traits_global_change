@@ -10,7 +10,7 @@ library(modelsummary)
 library(ggplot2)
 
 ###NOTE: this uses 
-traitdat=read.csv("Cleaned data/trait_data_Apr11.csv",header=T,strip.white = T) #created in 3_Final_namecleaning.R
+traitdat=read.csv("Cleaned data/trait_data.csv",header=T,strip.white = T) #created in 3_Final_namecleaning.R
 # traitdat=read.csv("Seed Trait Paper/clean_final_subtraitdata/trait_traitdata_Jan20.csv",header=T,strip.white = T)
 
 # removes standard deviation of all variables
