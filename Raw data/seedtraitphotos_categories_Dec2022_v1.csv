@@ -1,0 +1,73 @@
+﻿sp #,Species,speciescode,fruit_type,germ_is_disp,category,another_category,subcategory,hooked? (elongated only),notes_Elise,certainty_Lara,notes_Lara,category_Lara,subcategory_Lara,other possible category - subcategory_Lara,hooked? (elongated only)
+1,Agoseris heterophylla,agohet,achene,no,elongated,,one long,no,,ok,has one long app with many long apps off of it,elongated,one long,elongated-many long,no
+2,Allium falcifolium,allfal,de_capsule,yes,none,,coarse,,,strong,,none,coarse,N/A,
+3,Anagallis arvensis,anaarv,de_capsule,yes,none,,coarse,no,germinule - hairs are too small to count,strong,fuzzy,none,many short,N/A,no
+4,Ancistrocarphus filagineus,ancfil,achene,yes,none,,smooth,,,good,pointed at one end,none,smooth,nutrient-elaisosome,
+5,Athysanus pusillus,athpus,in_capsule,no,balloon,pod,closed,no,indehiscent silicle,ok,flat shape,elongated,many short,flat-small,no
+6,Avena fatua,avefat,caryopsis,no,elongated,balloon,many short,no,,strong,hairy,elongated,many short,N/A,no
+6,Avena fatua,avefat,caryopsis,no,elongated,balloon,one long,no,,strong,hairy,elongated,many short,N/A,no
+7,Brodiaea elegans,broele,de_capsule,yes,none,,coarse,,,ok,not sure how to tell if balloon or not,none,coarse,balloon-closed,
+8,Bromus hordeaceus,brohor,caryopsis,no,elongated,balloon,one short,,1,unsure,not sure how to tell if balloon or not,balloon,open,elongated-one long,
+9,Bromus madritensis,bromad,caryopsis,no,elongated,balloon,one long,no,,unsure,not sure how to tell if balloon or not,elongated,one long,balloon-open,no
+10,Calandrinia cilata,calcil,de_capsule,yes,none,,smooth,,,strong,"flat, shiny",none,smooth,N/A,
+11,Calycadenia pauciflora,calpua,achene,yes,elongated,,many short,no,,strong,little hairs,elongated,many short,N/A,no
+12,Castilleja attenuata,casatt,de_capsule,yes,other,net,coarse,,,good,,none,coarse,N/A,
+13,Centaurea Solstistalis,censol,achene,no,elongated,many short,many long,,"differs by morphotype. Light = many long, dark = many short.",strong,,none,smooth,N/A,
+14,Centri,centri,achene,yes,none,,coarse,,"hexaginal pattern in coat, deeply divided",strong,,none,coarse,N/A,
+15,Chaenactis glabriuscula,chagla,achene,no,elongated,,many short,no,,strong,3-5 appendages,elongated,many long,N/A,no
+16,Chlorogalum pomeridianum,chlpom,de_capsule,yes,none,,coarse,,,unsure,"not sure how to tell if balloon or not, weird shape",none,coarse,balloon-closed,
+17,Clarkia gracilis,clagra,de_capsule,yes,none,fuzzy,smooth,,1,,,flat,small,,
+18,Clarkia purpurea,clapur,de_capsule,yes,none,fuzzy,smooth,no,,ok,"looks a lot like clagra, but not as many little hairs?",elongated,many short,none-coarse,no
+19,Colinsia sparsiflora,colspa,de_capsule,yes,flat,,small,,"saucer shape, curled edge",ok,flat saucer shape-app?,flat,small,N/A,
+20,Cryptantha hispidula,cryhis,nutlet,yes,none,,smooth,,,good,teardrop shape-nutrient structure?,none,coarse,nutrient-elaisosome,
+21,Dichelostemma capitatum,diccap,de_capsule,yes,none,,coarse,,1,unsure,"not sure how to tell if balloon or not, deflated?",balloon,closed,none-coarse,
+22,Elymus elymoides,elyely,caryopsis,no,elongated,balloon,one long,,1,ok,glume/balloon?,balloon,open,elongated-one long,
+23,Epilobium brachycarpum,epibra,de_capsule,no,elongated,,many long,,,unsure,has nub on the end-appendage?,elongated,one short,none-smooth/coarse?,
+24,Erigonum nudum,erinud,achene,yes,none,,smooth,no,longitudinal ridges,unsure,"long nub teardrop shape, ridges running longways ",elongated,one long,flat appendage-small,no
+25,Eriophyllum lanatum,,achene,no,elongated,fuzzy,many short,,,,,,,,
+26,Euphorbia crenulata,eupcre,nutlet,yes,none,,coarse,,with wrinkles,strong,,none,coarse,N/A,
+27,Filago californica,,achene,yes,none,,smooth,,,,,,,,
+28,Fritillaria purdyi,fripur,de_capsule,yes,flat,,small,,,ok,not sure if small or large bc unsure where the actual seed part is,flat,small,flat-large,
+29,Galium aparine,galape,nutlet,yes,elongated,,many short,yes,"unsure about nutlet, hooked appendages",strong,hooked or no?,elongated,many short,N/A,maybe?
+30,Galium murale,galmur,nutlet,yes,elongated,,many short,yes,unsure about nutlet,strong,hooked or no?,elongated,many short,N/A,maybe?
+31,Gilia capitata,gilcap,de_capsule,yes,none,,coarse,,,strong,,none,coarse,N/A,
+32,Gilia tricolor,giltri,de_capsule,yes,none,,coarse,,,strong,very bumpy,none,coarse,N/A,
+33,Hemizonia congesta,hemcom,achene,yes,none,,coarse,,no pappus,strong,,none,coarse,N/A,
+34,Holocarpa virgata,holvir,achene,yes,none,,coarse,,no pappus,strong,,none,coarse,N/A,
+35,Hypochaeris glabra,hypgla,achene,no,elongated,,one long,no,,strong,has many long app. coming off one very long app,elongated,many long,elongated-one long,no
+36,Lactuca serriola,lacser,achene,yes,elongated,,one long,no,,ok,not sure if stem is an app? Has parallel ridges longways,elongated,one long,none-coarse,no
+37,Lagophylla minor,lagmin,achene,yes,none,,smooth,,,good,has faint parallel ridges,none,coarse,none-smooth,
+38,Lasthenia californica,lascal,achene,yes,elongated,,many long,no,,ok,has both short hairs and long app,elongated,many long,elongated-many short,no
+39,Lepidium,lepidium,de_capsule,yes,none,,smooth,,silique,strong,,none,smooth,N/A,
+40,Linanthus dichotomus,lindic,de_capsule,yes,none,,coarse,,,strong,has outer layer,none,coarse,N/A,
+41,Lolium multiflorum,lolmul,caryopsis,yes,elongated,balloon,one long,,seeds may either have an awn or no appendage,good,,balloon,open,N/A,
+42,Lomatium marginatum,lommar,mericarp,yes,flat,,small,,,strong,"flat shape, ridge down the middle",flat,small,N/A,
+43,Lotus humistratus,lothum,de_capsule,yes,none,,smooth,,dehiscent legume,strong,faceted,none,smooth,N/A,
+44,Medicago polymorpha,medicago,in_capsule,no,elongated,pod,many short,yes,indehiscent legume,strong,,none,smooth,N/A,
+45,Micropus californicus,miccal,achene,no,elongated,fluffy,many long,no,,strong,long fuzz,elongated,many long,N/A,no
+46,Microseris douglasii,micdou,achene,no,elongated,,many long,no,,strong,five appendages,elongated,many long,N/A,no
+47,Mimulus douglassi,mimdou,in_capsule,no,none,pod,coarse,,,good,translucent-outer coat appendage?,none,smooth,N/A,
+48,Mimulus guttatus,mimgut,de_capsule,yes,none,,coarse,,,strong,,none,smooth,N/A,
+49,Nassella pulchra,naspul,caryopsis,yes,elongated,balloon,one long,no,,good,"fuzzy, but does have one long part",elongated,many short,elongated-one long,no
+50,Navarretia jepsonii,nad sp.,de_capsule,no,balloon,,open,,,strong,,none,smooth,N/A,
+51,Petrohagia prolifera,petpro,de_capsule,yes,elongated,,many short,no?,,ok,"has little spikes, but weird open shape?",elongated,many short,balloon-open,no?
+52,Phlox gracilis,phlgra,de_capsule,yes,none,,coarse,,,good,,none,coarse,N/A,
+53,Plantago erecta,plaera,de_capsule,yes,none,,coarse,,,good,one pic shows bump down middle,none,smooth,N/A,
+54,Rigiopappus leptocladus,riglep,achene,no,elongated,,many short,no,,strong,3 spikes at the end,elongated,many long,N/A,no
+55,Sidalcea diploscypha,siddip,mericarp,yes,balloon,,closed,,in_winged_mericarp,ok,unsure between 2 categories,none,coarse,balloon-closed,
+56,Silene gallica,silgal,de_capsule,yes,none ,,coarse,,,ok,small spikes-appendages or just coarse?,none ,coarse,elongated-many short,
+57,Sisyrinchium bellum,sisbel,de_capsule,yes,none,,coarse,,,good,not sure how to tell if balloon or not,none,coase,balloon-closed,
+58,Taeniatherum caput-medusae,taecap,caryopsis,no,elongated,,one long,no,,ok,glume/balloon?,elongated,one long,balloon-open,no
+59,Thysanocarpus curvipes,thycur,in_capsule,no,flat,,large,,,strong,,flat,large,N/A,
+60,Trifolium albopurpureum,tripur,breaking_legume,no,balloon,,open,,trifoliums are individual breaking legumes. I.E. indehiscent but not actually,strong,,none,smooth,N/A,
+61,Trifolium fucatum,trifuc,breaking_legume,no,balloon,,open,,seed may be disp=germ,good,can't tell the shape,none,coarse,N/A,
+62,Trifolium hirtum,trihir,breaking_legume,no,balloon,,open,,,strong,,none,smooth,N/A,
+63,Trifolium willdenovii,triwil,breaking_legume,no,balloon,,open,,,ok,bumpy shape- coarse or smooth?,none,smooth,none-coarse,
+64,Trifolium gracilentum,trigra,breaking_legume,no,balloon,,open,,,strong,,none,smooth,N/A,
+65,Uropappus lindeye,urolin,achene,no,elongated,,many short,no,,strong,,elongated,many long,N/A,no
+66,Velezia rigida,velrig,de_capsule,yes,none,,coarse,,,good,folded/wrinkle shape,none,coarse,N/A,
+67,Vicia villosa,vicvil,de_capsule,yes,none,,coarse,,,strong,,none,coarse,N/A,
+68,Viola douglasii,viodou,de_capsule,yes,none,,smooth,,,strong,,none,smooth,N/A,
+69,Vulpia microstachys,vulmic,caryopsis,no,elongated,balloon,one long,,1,ok,glume/balloon?,balloon,open,elongated-one long,
+70,Vulpia myuros,vulpia,caryopsis,no,elongated,balloon,one long,,1,ok,glume/balloon?,balloon,open,elongated-one long,
+71,Zigadenus fremontii,zigfree,de_capsule,yes,none,,coarse,,"septicidal capsule, ridge along seed looks wing-like",good,"flat shape, some wrinkles",none,coarse,N/A,
