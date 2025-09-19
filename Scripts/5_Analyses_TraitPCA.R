@@ -12,7 +12,7 @@ library(ggplot2)
 library(cowplot)
 library(ggcorrplot)
 ### data prep ####
-# input transformed trait data from 4_traittransformations
+# input transformed trait data from 4_trait_transformations
 traitdat=read.csv("Cleaned data/transformed_traitdata.csv",header = T) %>%
     #NOTE, will need to put code below into data_cleaning/prep scripts once have all missing files
   mutate(species = as.factor(clean_code), annual = as.factor(annual), Functional.group = as.factor(Functional.group), 
@@ -47,10 +47,10 @@ plot(trait.pca, type = "lines")
 # plot with species names
 ggbiplot::ggbiplot(trait.pca, labels = traitdat_info$species)+
   theme_classic()
-# ggsave("Plots/PCA12_specieslabels.png", height = 5, width = 5, dpi = 300)
+# ggsave("Plots/PCA12_specieslabels.jpg", height = 5, width = 5, dpi = 300)
 ggbiplot::ggbiplot(trait.pca, labels = traitdat_info$species, choices = c(3,4))+
   theme_classic()
-# ggsave("Plots/PCA34_species labels.png", height = 5, width = 5, dpi = 300)
+# ggsave("Plots/PCA34_species labels.jpg", height = 5, width = 5, dpi = 300)
 
 ## extract loadings for each species
 ind.coord=trait.pca$x
@@ -101,18 +101,19 @@ pc12 <- autoplot(trait.pca, data = all2, colour = 'origin', shape =  "Functional
         theme_bw()+
        
         geom_segment(data = loadingvals, aes(x=0, y=0, xend = PC1*5, yend = PC2*5, linetype = category), #0.8 just scales loading arrows to fit graph, autoplot does this automatically when plotting loading = T
-                     arrow = arrow(length = unit(0.2, "cm"), type= "closed"),  size = 0.75, color = "black")  + #, color = loadingvals$color_group
-        geom_text(data = loadingvals, mapping = aes(label = trait, x = PC1*5.4, y=PC2*5.4)) +  #multiply by 5.4 to move a little away from arrow
-        scale_linetype_manual(values = c("dashed", "dotted", "solid") )
-
+                     arrow = arrow(length = unit(0.2, "cm"), type= "closed"),  linewidth = 0.75, color = "black")  + #, color = loadingvals$color_group
+        #geom_text(data = loadingvals, mapping = aes(label = trait, x = PC1*5.5, y=PC2*5.5), size = 6 ) +  #multiply by scores to move a little away from arrow
+        scale_linetype_manual(values = c("dashed", "dotted", "solid") )+ 
+        geom_text_repel(data = loadingvals, aes(x =  PC1*5.5, y = PC2*5.6, label= trait), size=6 )
+pc12
   #add means for functional groups
-fig1a <- pc12 +  geom_point(x=funtype_mean$`mean(PC1)`[1],y=funtype_mean$`mean(PC2)`[1], size=6, shape = 1)+
-  geom_point(x=funtype_mean$`mean(PC1)`[2],y=funtype_mean$`mean(PC2)`[2], size=6, shape = 2) +
-  geom_point(x=funtype_mean$`mean(PC1)`[3],y=funtype_mean$`mean(PC2)`[3], size=6, shape = 0) +
+fig1a <- pc12 +  geom_point(x=funtype_mean$`mean(PC1)`[1],y=funtype_mean$`mean(PC2)`[1], size=6, shape = 1, stroke =1.5)+
+  geom_point(x=funtype_mean$`mean(PC1)`[2],y=funtype_mean$`mean(PC2)`[2], size=6, shape = 2, stroke =1.5) + #stroke controls outline width
+  geom_point(x=funtype_mean$`mean(PC1)`[3],y=funtype_mean$`mean(PC2)`[3], size=6, shape = 0, stroke =1.5) +
   theme(legend.direction ="horizontal", legend.position = "bottom", legend.title = element_blank(), 
-        text = element_text(size = 14), legend.key.width = unit(2, "line")) + 
+        text = element_text(size = 18), legend.key.width = unit(2, "line")) + 
   guides(linetype = "none")
-fig1a
+fig1a 
 
 pc34 <- autoplot(trait.pca, data = all2, colour = 'origin', shape =  "Functional.group", loadings = F, size =2, scale = 0,
                  x=3, y=4) + 
@@ -120,15 +121,16 @@ pc34 <- autoplot(trait.pca, data = all2, colour = 'origin', shape =  "Functional
   theme_bw()+
   geom_segment(data = loadingvals, aes(x=0, y=0, xend = PC3*5, yend = PC4*5, linetype = category), #0.8 just scales loading arrows to fit graph, autoplot does this automatically when plotting loading = T
                arrow = arrow(length = unit(0.2, "cm"), type= "closed"),  size = 0.75, color = "black")  + #, color = loadingvals$color_group
-  geom_text(data = loadingvals, mapping = aes(label = trait, x = PC3*5.4, y=PC4*5)) +  #multiply by 5.4 to move a little away from arrow
-  scale_linetype_manual(values = c("dashed", "dotted", "solid") )
-
+  geom_text(data = loadingvals, mapping = aes(label = trait, x = PC3*6, y=PC4*5.3), size = 6) +  #multiply by 5.4 to move a little away from arrow
+  scale_linetype_manual(values = c("dashed", "dotted", "solid") ) #+ 
+ # geom_text_repel(data = loadingvals, aes(x =  PC1*5, y = PC2*5, label= trait), size=6 )
+pc34
 #add means for functional groups
-fig1b <- pc34 +  geom_point(x=funtype_mean$`mean(PC3)`[1],y=funtype_mean$`mean(PC4)`[1], size=6, shape = 1)+
-  geom_point(x=funtype_mean$`mean(PC3)`[2],y=funtype_mean$`mean(PC4)`[2], size=6, shape = 2) +
-  geom_point(x=funtype_mean$`mean(PC3)`[3],y=funtype_mean$`mean(PC4)`[3], size=6, shape = 0) +
+fig1b <- pc34 +  geom_point(x=funtype_mean$`mean(PC3)`[1],y=funtype_mean$`mean(PC4)`[1], size=6, shape = 1, stroke =1.5)+
+  geom_point(x=funtype_mean$`mean(PC3)`[2],y=funtype_mean$`mean(PC4)`[2], size=6, shape = 2, stroke =1.5) +
+  geom_point(x=funtype_mean$`mean(PC3)`[3],y=funtype_mean$`mean(PC4)`[3], size=6, shape = 0, stroke =1.5) +
   theme(legend.direction = "horizontal", legend.position = "bottom", legend.title = element_blank(), 
-        text = element_text(size = 14),  legend.key.width = unit(2, "line")) + 
+        text = element_text(size = 16),  legend.key.width = unit(2, "line")) + 
   guides(shape = "none", color = "none")
 fig1b 
 
@@ -154,11 +156,12 @@ pca_hull_fxnalgroup12 <-
 figSXa <- 
   fig1a +
   geom_polygon(data = pca_hull_fxnalgroup12,
-               aes(fill = fillgroup,
-                   color = fillgroup),
+               aes(fill = Functional.group,
+                   color = Functional.group),
                alpha = 0.3,
                show.legend = T) +
-  guides(fill = "none", color = "none", shape = guide_legend(override.aes = list(fill = NA)))
+  scale_fill_grey(start = 1, end = 0.2) +
+  guides( color = "none") #, shape = guide_legend(override.aes = list(fill = NA))
 
 figSXa 
 
@@ -173,20 +176,21 @@ pca_hull_fxnalgroup34 <-
     Functional.group == "N-fixer" ~ "#7570B3FF"
   ))
 
-figSXb <- 
-  fig1b +
+figSXb <- fig1b +
   geom_polygon(data = pca_hull_fxnalgroup34,
-               aes(fill = fillgroup,
-                   color = fillgroup),
+               aes(fill = Functional.group,
+                   color = Functional.group),
                alpha = 0.3,
                show.legend = T) +
-  guides(fill = "none", color = "none", linetype = guide_legend(override.aes = list(fill = NA)))
+  scale_fill_grey(start = 1, end = 0.2) +
+  guides( color = "none",fill = "none", linetype = guide_legend(override.aes = list(fill = NA)))  #
+  
 
 figSXb 
 
-####Fig SX: Trait PCA with convex hulls for functional groups ####
+####Fig 1alt: Trait PCA with convex hulls for functional groups ####
 plot_grid(figSXa , figSXb  , labels = c("A.", "B."), label_size=14)
-#ggsave("Plots/FigSX_TraitPCA_withconvexhulls.jpg", height = 10, width = 20)
+#ggsave("Plots/Fig1alt_TraitPCA_withconvexhulls.jpg", height = 10, width = 20)
 
 
 #### test significance of differences in PC values among functional groups and origin ####
@@ -316,9 +320,9 @@ pc122 <- autoplot(trait.pca2, data = all22, colour = 'origin', shape =  "Functio
   scale_linetype_manual(values = c("dashed", "dotted", "solid") )
 
 #add means for functional groups
-fig1a_alt <- pc122 +  geom_point(x=funtype_mean2$`mean(PC1)`[1],y=funtype_mean2$`mean(PC2)`[1], size=6, shape = 1)+
-  geom_point(x=funtype_mean2$`mean(PC1)`[2],y=funtype_mean2$`mean(PC2)`[2], size=6, shape = 2) +
-  geom_point(x=funtype_mean2$`mean(PC1)`[3],y=funtype_mean2$`mean(PC2)`[3], size=6, shape = 0) +
+fig1a_alt <- pc122 +  geom_point(x=funtype_mean2$`mean(PC1)`[1],y=funtype_mean2$`mean(PC2)`[1], size=6, shape = 1, stroke=1.5)+
+  geom_point(x=funtype_mean2$`mean(PC1)`[2],y=funtype_mean2$`mean(PC2)`[2], size=6, shape = 2, stroke=1.5) +
+  geom_point(x=funtype_mean2$`mean(PC1)`[3],y=funtype_mean2$`mean(PC2)`[3], size=6, shape = 0, stroke=1.5) +
   theme(legend.direction ="horizontal", legend.position = "bottom", legend.title = element_blank(), text = element_text(size = 14)) + 
   guides(linetype = "none")
 fig1a_alt
@@ -333,9 +337,9 @@ pc342 <- autoplot(trait.pca2, data = all22, colour = 'origin', shape =  "Functio
   scale_linetype_manual(values = c("dashed", "dotted", "solid") )
 
 #add means for functional groups
-fig1b_alt <- pc342 +  geom_point(x=funtype_mean2$`mean(PC3)`[1],y=funtype_mean2$`mean(PC4)`[1], size=6, shape = 1)+
-  geom_point(x=funtype_mean2$`mean(PC3)`[2],y=funtype_mean2$`mean(PC4)`[2], size=6, shape = 2) +
-  geom_point(x=funtype_mean2$`mean(PC3)`[3],y=funtype_mean2$`mean(PC4)`[3], size=6, shape = 0) +
+fig1b_alt <- pc342 +  geom_point(x=funtype_mean2$`mean(PC3)`[1],y=funtype_mean2$`mean(PC4)`[1], size=6, shape = 1, stroke=1.5)+
+  geom_point(x=funtype_mean2$`mean(PC3)`[2],y=funtype_mean2$`mean(PC4)`[2], size=6, shape = 2, stroke=1.5) +
+  geom_point(x=funtype_mean2$`mean(PC3)`[3],y=funtype_mean2$`mean(PC4)`[3], size=6, shape = 0, stroke=1.5) +
   theme(legend.direction = "horizontal", legend.position = "bottom", legend.title = element_blank(), text = element_text(size = 14)) + 
   guides(shape = "none", color = "none")
 fig1b_alt 
