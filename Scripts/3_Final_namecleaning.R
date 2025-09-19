@@ -174,7 +174,7 @@ names(SBRAdat)
 "CLARKIASP" %in% SBRAdat$clean_code
 "MEDPOL" %in% SBRAdat$clean_code
 
-# write.csv(SBRA_traitdat,"Cleaned data/SBRAW_trait_long.csv",row.names = F)
+# write.csv(SBRA_traitdat,"Cleaned data/SBRAW_trait_long.csv",row.names = F) #this doesn't push to GitHub, too big
 
 traitdat2%>%filter(clean_code=="MEDPOL")
 SBRA_traitdat%>%filter(clean_code=="MEDPOL")
