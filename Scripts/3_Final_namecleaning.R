@@ -49,9 +49,9 @@ source("Scripts/2_name_cleaning_tosource_ID.R")
 GermExt=cleannamedat
 
 ### read in SCP, CN, and MFsm, VM, starch, and clean names before combining #####
-SCP=read.csv("Cleaned data/SCP_summary_120222.csv",header=T,strip.white = T)
-CN=read.csv("Cleaned data/cn_summary_120222.csv",header=T,strip.white=T)
-MFsm=read.csv("Cleaned data/mf_sm_summary_120222.csv",header = T,strip.white = T)
+SCP=read.csv("Cleaned data/SCP_summary.csv",header=T,strip.white = T)
+CN=read.csv("Cleaned data/cn_summary.csv",header=T,strip.white=T)
+MFsm=read.csv("Cleaned data/mf_sm_summary.csv",header = T,strip.white = T)
 
 head(SCP)
 head(CN)
@@ -89,15 +89,15 @@ traitdat=traitdat%>%
 
 #### MISSING FILES ####
 ## Starch
-Starch=read.csv("Seed Trait Paper/current_csv files/Starch_20221222.csv", header=T, strip.white = T)
+Starch=read.csv("Cleaned data/Starch.csv", header=T, strip.white = T)
 
-Starch=Starch%>%select(IDnum="Idnum",starch,mucilage)
+Starch=Starch%>%select(IDnum="IDnum",starch,mucilage)
 traitdat2=traitdat%>%
   left_join(Starch)
 
 
 ## Morphological categorization
-Morph=read.csv("Seed Trait Paper/current_csv files/seedtraitphotos_categories_Dec2022_v1.csv", header=T, strip.white = T)
+Morph=read.csv("Raw data/seedtraitphotos_categories_Dec2022_v1.csv", header=T, strip.white = T)
 names(Morph)
 Morph1=Morph[c(1,4:6,8)]
 # head(Morph2)
@@ -139,7 +139,7 @@ traitdat3=traitdat2%>%
 
 ## Videometer data
 # VM=read.csv("Seed Trait Paper/clean_final_subdata/VM_byspecies.csv",header=T,strip.white = T) # the full data is a lot of variables. For now using sub data.
-VM=read.csv("Seed Trait Paper/clean_final_subdata/VM_byspecies_Jan20.csv",header=T,strip.white = T) # the full data is a lot of variables. For now using sub data.
+VM=read.csv("Cleaned data/VM_byspecies.csv",header=T,strip.white = T) # the full data is a lot of variables. For now using sub data.
 
 traitdat=traitdat3%>%
   left_join(VM)
@@ -153,7 +153,7 @@ names(traitwithgerm)
 names(traitdat)
 
 ### SCT data
-SCT=read.csv("Seed Trait Paper/clean_final_subdata/SCT_micrometer.csv",header=T)
+SCT=read.csv("Cleaned data/SCT_micrometer.csv",header=T)
 
 traitdat=traitdat%>%
   left_join(SCT)
@@ -174,10 +174,7 @@ names(SBRAdat)
 "CLARKIASP" %in% SBRAdat$clean_code
 "MEDPOL" %in% SBRAdat$clean_code
 
-# write.csv(SBRA_traitdat,"Seed Trait Paper/clean_final_subdata/SBRAW_trait_long_April2023.csv",row.names = F)
-# write.csv(SBRA_traitdat,"Seed Trait Paper/clean_final_subdata/SBRA_trait_long_Jan2023v2.csv",row.names = F) #not current
-# write.csv(SBRA_traitdat,"Seed Trait Paper/clean_final_subdata/SBRA_trait_long_Jan23.csv",row.names = F) #not current
-# write.csv(SBRA_traitdat,"Seed Trait Paper/clean_final_subdata/SBRA_trait_long_Dec2022v3.csv",row.names = F) #not current
+# write.csv(SBRA_traitdat,"Cleaned data/SBRAW_trait_long.csv",row.names = F)
 
 traitdat2%>%filter(clean_code=="MEDPOL")
 SBRA_traitdat%>%filter(clean_code=="MEDPOL")
