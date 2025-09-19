@@ -158,7 +158,7 @@ SCT=read.csv("Cleaned data/SCT_micrometer.csv",header=T)
 traitdat=traitdat%>%
   left_join(SCT)
 
-# write.csv(traitdat,"Seed Trait Paper/clean_final_subdata/trait_data.csv",row.names = F)
+# write.csv(traitdat,"Seed Trait Paper/clean_final_subdata/trait_data.csv",row.names = F) #this gets used in 4_trait_transformations
 SBRA_traitdat=SBRAdat%>%
   full_join(traitdat, by =c("IDnum"="IDnum","clean_code"="clean_code"))%>%
   distinct()
