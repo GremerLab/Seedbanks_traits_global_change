@@ -21,7 +21,7 @@ summary(traitdat)
 str(traitdat)
 dim(traitdat)
 
-abundat = read.csv("Cleaned data/SBRAWbyspecies_tomatch2017_05112023_cleancode.csv") %>% #see 3_Final_namecleaning.R for script generating this file, this matches raw seedling counts from Eskelinen et al. 2021, seedbankgrowoutallyrs_wide_totnumseedlings_tomatch2017.csv
+abundat = read.csv("Cleaned data/SBRAWbyspecies_tomatch2017_cleancode.csv") %>% #see 3_Final_namecleaning.R for script generating this file, this matches raw seedling counts from Eskelinen et al. 2021, seedbankgrowoutallyrs_wide_totnumseedlings_tomatch2017.csv
           mutate(species = clean_code, rawcount = relcover) %>% #despite naming in file, it's actually raw counts not relative cover
           select(-clean_code, -family, -annual, -MarinaSp, -nat.inv, -Functional.group, -relcover) #these are updated in traitdat, can remove from here
 #JRG notes, all abundances using the RAW data file are raw abundances, not relative, and has adapted scripts accordingly
@@ -44,7 +44,7 @@ rawab_plots=abund_trait_dat%>%
 
 #below calculates the total abundance for species in those plots for which we had trait data
 rawab_wtraits =abund_trait_dat%>%
-  filter(is.na(Mass)==F & is.na(CN)==F)%>% #removes rows that are missing seed mass or cn value
+  filter(is.na(Mass)==Fval & is.na(CN)==Fval)%>% #removes rows that are missing seed mass or cn value
   group_by(Plot,WFtreatment)%>%
   dplyr::summarise(totplottraits=sum(rawcount))
 
@@ -58,7 +58,7 @@ all_abtraits = left_join(abund_trait_dat, rawab) %>%
                mutate(relab = rawcount/totplotincmissing) %>%
                mutate(relab_traitsonly = rawcount/totplottraits) %>%
                mutate(habitat = fct_recode(habitat, "Harsh" = "Harshserp", "Lush" = "Lushserp")) %>%
-               mutate(WFtreatment = fct_recode(WFtreatment, "R" = "W", "N" = "F", "NR" = "FW"))
+               mutate(WFtreatment = fct_recode(WFtreatment, "R" = "W", "N" = "Fval", "NR" = "FW"))
 #all_abtraits will have some relab_traitsonly greater than 1, this is species that don't have trait values
 #so, their CWM trait values will be NA, so no need to filter them out here
 summary(all_abtraits)
@@ -72,7 +72,7 @@ summary(all_abtraits %>%
 
 #check what coverage we have for species that we do have traits
 relabsummary = all_abtraits %>% 
-          filter(is.na(Mass)==F & is.na(CN)==F)  %>% 
+          filter(is.na(Mass)==Fval & is.na(CN)==Fval)  %>% 
           group_by(Plot) %>%
           summarize(sumrelab = sum(relab, na.rm=T)) #median = 90%, mean = 79.9%
 sd(relabsummary$sumrelab)
@@ -106,6 +106,8 @@ str(cwmdat)
 #### Model outputs for individual traits ####  
 indtraitlist = c("SCT_CWM","Mass_CWM" ,"SCP_CWM", "CN_CWM" ,"Length_CWM", "Starch_CWM", "Shape_CWM")
 length(indtraitlist)
+output_ind = list() 
+
 
 for (i in 1:length(indtraitlist)){
   modeldat=cwmdat
@@ -122,13 +124,13 @@ for (i in 1:length(indtraitlist)){
   #m0ml=lme((responsevar)~ habitat*watering*fertilization,random=~1|Line, data=modeldat,na.action=na.exclude,method = "ML")
   #JRG: we want something like this:  a= anova(m0ml)$'p-value'
  anova_output0 = as.data.frame(anova(m0)) %>%
-               mutate(factor = rownames(.))
+               mutate(factor = rownames(.), trait = indtraitlist[i])
  anova_output0_table = anova_output0 %>%
           select(-factor) %>%
           kable(
           digits = 3,
           caption = "ANOVA for Fixed Effects",
-          col.names = c("Term", "Sum of Squares", "Mean Squares", "Num DF", "Den DF", "F-value", "P-value")
+          col.names = c("Term", "Sum of Squares", "Mean Squares", "Num DF", "Den DF", "Fval-value", "P-value")
         ) %>%
         kable_styling(
           bootstrap_options = c("striped", "hover", "condensed"),
@@ -140,13 +142,13 @@ for (i in 1:length(indtraitlist)){
     #m1ml=lme((responsevar)~ habitat*watering+habitat*fertilization+watering*fertilization,random=~1|Line, data=modeldat,na.action=na.exclude,method = "ML")
     # Create the kable table
     anova_output1 = as.data.frame(anova(m1)) %>%
-      mutate(factor = rownames(.))
+      mutate(factor = rownames(.), trait = indtraitlist[i])
     anova_output1_table = anova_output1%>%
         select(-factor) %>%
           kable(
           digits = 3,
           caption = "ANOVA for Fixed Effects",
-          col.names = c("Term", "Sum of Squares", "Mean Squares", "Num DF", "Den DF", "F-value", "P-value")
+          col.names = c("Term", "Sum of Squares", "Mean Squares", "Num DF", "Den DF", "Fval-value", "P-value")
         ) %>%
         kable_styling(
           bootstrap_options = c("striped", "hover", "condensed"),
@@ -155,38 +157,93 @@ for (i in 1:length(indtraitlist)){
           if(round(anova_output1$'p-value'[5],3) >0.05 & round(anova_output1$'p-value'[6],3) >0.05 & round(anova_output1$'p-value'[7],3) >0.05){ #condition 2
             m2=lme((responsevar)~ habitat+ watering+ fertilization,random=~1|Line, data=modeldat,na.action=na.exclude,method = "REML")
             anova_output2 = as.data.frame(anova(m2))%>%
-              mutate(factor = rownames(.))
+              mutate(factor = rownames(.), trait = indtraitlist[i])
             anova_output2_table = anova_output2 %>%
               select(-factor) %>%
               kable(
                 digits = 3,
                 caption = "ANOVA for Fixed Effects",
-                col.names = c("Term", "Sum of Squares", "Mean Squares", "Num DF", "Den DF", "F-value", "P-value")
+                col.names = c("Term", "Sum of Squares", "Mean Squares", "Num DF", "Den DF", "Fval-value", "P-value")
               ) %>%
               kable_styling(
                 bootstrap_options = c("striped", "hover", "condensed"),
                 full_width = FALSE
               )
             #output results for main factors only 
+            output_ind[[i]]= anova_output2
+            write.csv(anova_output2, file = paste("Output tables/",response,"_main_both.csv",sep="")) 
             kableExtra::save_kable(anova_output2_table, file = paste("Output tables/",response,"_main_both.html",sep=""))      
             } else {
             #output results for 2 ways if they are significant 
+              output_ind[[i]]= anova_output1
+               write.csv(anova_output1, file = paste("Output tables/",response,"_2way_both.csv",sep=""))
             kableExtra::save_kable(anova_output1_table, file = paste("Output tables/",response,"_2way_both.html",sep="")) }     
   } else { #output results for 3 way if it is significant 
+    output_ind[[i]]= anova_output0
+    write.csv(anova_output0, file = paste("Output tables/",response,"_3way_both.csv",sep=""))
     kableExtra::save_kable(anova_output0_table, file = paste("Output tables/",response,"_3way_both.html",sep=""))
   }
    
  }
 
+#pull anovas together for table
+all_anova_indtraits = do.call(rbind.data.frame, output_ind) %>%
+                      rename(Fval = 'F-value', p= 'p-value') %>%
+                      mutate(p = ifelse(round(p,3) == 0, "<0.001",round(p, 3))) %>%
+                      mutate(Fval = round(Fval, 3))
+#write.csv(all_anova_indtraits, file = "Output tables/CWM_indtraits_ANOVA_all.csv")
+
+#this is working for getting it wider
+all_anova_indtraits_wider = all_anova_indtraits %>%
+              mutate(DF = paste(numDF, denDF, sep = ","), 
+                     FP= paste(Fval,p, sep = ", ")) %>%
+              select(-numDF, -denDF, -Fval, -p) %>%
+              pivot_wider(
+                id_cols = c(trait),
+                names_from = factor, 
+                values_from = c(DF, FP)
+              ) %>%
+            rename(DF = DF_habitat) %>%
+            select(!starts_with("DF_")) %>%
+            rename_with(~str_remove(.x, "FP_")) 
+#but would be nice to have sub columns for F and V back again
+#stuck here
+all_anova_indtraits_wider2 = all_anova_indtraits %>%
+        mutate(Fval = as.character(Fval)) %>%
+        mutate(DF = paste(numDF, denDF, sep = ",")) %>%
+        select(-numDF, -denDF) %>%
+        pivot_wider(
+        id_cols = c(trait),
+        names_from = factor, 
+        values_from = c(DF, Fval, p)
+      ) %>%
+      rename(DF = DF_habitat) %>%
+      select(!starts_with("DF_")) %>%
+     pivot_longer(
+       cols = c(starts_with("Fval_"), starts_with("p_")),
+       names_to= "statfact",
+       values_to = "value"
+     ) %>%
+   separate(statfact, sep = "_", into = c("stat", "factor")) %>% #then go wider again, this seems silly
+  pivot_wider(
+   id_cols = c(trait, DF, stat),
+   names_from= factor,
+    values_from = value
+  ) 
+ 
+          
+#write.csv(all_anova_indtraits_wider2, file = "Output tables/CWM_indtraits_ANOVA_all_wide.csv")
+
 
 #### Model outputs for CWM traits calculated from PC scores (multivariate traits) ####
-cwmtraitlist = c("PC1_CWM","PC2_CWM" ,"PC3_CWM", "PC4_CWM")
-length(cwmtraitlist)
+pctraitlist = c("PC1_CWM","PC2_CWM" ,"PC3_CWM", "PC4_CWM")
+length(pctraitlist)
+output_pc = list() 
 
-for (i in 1:length(cwmtraitlist)){
+for (i in 1:length(pctraitlist)){
   modeldat=cwmdat
   dataversion="all plots" # alternative is to use testdatPC which only includes plots with a minimum of 70% cover
-  response= cwmtraitlist[i] 
+  response= pctraitlist[i] 
   COL=which((response == names(modeldat))==T)
   temp=as.data.frame(modeldat[COL])
   colnames(temp)[1]="responsevar"
@@ -198,13 +255,13 @@ for (i in 1:length(cwmtraitlist)){
   #m0ml=lme((responsevar)~ habitat*watering*fertilization,random=~1|Line, data=modeldat,na.action=na.exclude,method = "ML")
   #JRG: we want something like this:  a= anova(m0ml)$'p-value'
   anova_output0 = as.data.frame(anova(m0))  %>%
-    mutate(factor = rownames(.))
+    mutate(factor = rownames(.), trait = indtraitlist[i])
   anova_output0_table = anova_output0 %>%
     select(-factor) %>%
     kable(
       digits = 3,
       caption = "ANOVA for Fixed Effects",
-      col.names = c("Term", "Sum of Squares", "Mean Squares", "Num DF", "Den DF", "F-value", "P-value")
+      col.names = c("Term", "Sum of Squares", "Mean Squares", "Num DF", "Den DF", "Fval-value", "P-value")
     ) %>%
     kable_styling(
       bootstrap_options = c("striped", "hover", "condensed"),
@@ -216,13 +273,13 @@ for (i in 1:length(cwmtraitlist)){
     #m1ml=lme((responsevar)~ habitat*watering+habitat*fertilization+watering*fertilization,random=~1|Line, data=modeldat,na.action=na.exclude,method = "ML")
     # Create the kable table
     anova_output1 = as.data.frame(anova(m1))  %>%
-      mutate(factor = rownames(.))
+      mutate(factor = rownames(.), trait = indtraitlist[i])
     anova_output1_table = anova_output1%>%
       select(-factor) %>%
       kable(
         digits = 3,
         caption = "ANOVA for Fixed Effects",
-        col.names = c("Term", "Sum of Squares", "Mean Squares", "Num DF", "Den DF", "F-value", "P-value")
+        col.names = c("Term", "Sum of Squares", "Mean Squares", "Num DF", "Den DF", "Fval-value", "P-value")
       ) %>%
       kable_styling(
         bootstrap_options = c("striped", "hover", "condensed"),
@@ -231,13 +288,13 @@ for (i in 1:length(cwmtraitlist)){
     if(round(anova_output1$'p-value'[5],3) >0.05 & round(anova_output1$'p-value'[6],3) >0.05 & round(anova_output1$'p-value'[7],3) >0.05){ #condition 2
       m2=lme((responsevar)~ habitat+ watering+ fertilization,random=~1|Line, data=modeldat,na.action=na.exclude,method = "REML")
       anova_output2 = as.data.frame(anova(m2))  %>%
-        mutate(factor = rownames(.))
+        mutate(factor = rownames(.), trait = indtraitlist[i])
       anova_output2_table = anova_output2 %>%
         select(-factor) %>%
         kable(
           digits = 3,
           caption = "ANOVA for Fixed Effects",
-          col.names = c("Term", "Sum of Squares", "Mean Squares", "Num DF", "Den DF", "F-value", "P-value")
+          col.names = c("Term", "Sum of Squares", "Mean Squares", "Num DF", "Den DF", "Fval-value", "P-value")
         ) %>%
         kable_styling(
           bootstrap_options = c("striped", "hover", "condensed"),
@@ -522,7 +579,7 @@ plot_grid(a + theme(legend.position = "none"),
           f, 
           g,
           ncol = 2, nrow = 3,
-          labels = c("A.", "B.", "C.", "D.", "E.", "F.", "G."), label_size=14)
+          labels = c("A.", "B.", "C.", "D.", "E.", "Fval.", "G."), label_size=14)
 #note, can't get formatting to look good with really long panel
 
 #ggsave("Plots/Fig2_CWMresponses.jpg", height = 10, width = 15)

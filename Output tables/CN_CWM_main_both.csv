@@ -1,0 +1,5 @@
+"","numDF","denDF","F-value","p-value","factor","trait"
+"(Intercept)",1,82,1598.46372667459,0,"(Intercept)","CN_CWM"
+"habitat",1,82,205.345829476077,0,"habitat","CN_CWM"
+"watering",1,82,0.809102159687063,0.371019774406486,"watering","CN_CWM"
+"fertilization",1,82,6.41747768788818,0.0132051912477898,"fertilization","CN_CWM"
