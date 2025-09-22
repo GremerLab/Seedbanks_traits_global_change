@@ -14,6 +14,7 @@ library(kableExtra) #tables of model output
 library(emmeans) #post hoc contrasts
 library(ggplot2)
 library(cowplot) #for arranging panels in figures
+library(multcomp) #for getting letters for post hoc contrasts on figures
 
 traitdat = read.csv("Output data/Traits_PCscores_all.csv") #see 5_Analyses_TraitPCA.R for script generating this file
 #note traitdat is using the transformed trait values as they were input into the PCA in script 5
@@ -22,8 +23,8 @@ str(traitdat)
 dim(traitdat)
 
 abundat = read.csv("Cleaned data/SBRAWbyspecies_tomatch2017_cleancode.csv") %>% #see 3_Final_namecleaning.R for script generating this file, this matches raw seedling counts from Eskelinen et al. 2021, seedbankgrowoutallyrs_wide_totnumseedlings_tomatch2017.csv
-          mutate(species = clean_code, rawcount = relcover) %>% #despite naming in file, it's actually raw counts not relative cover
-          select(-clean_code, -family, -annual, -MarinaSp, -nat.inv, -Functional.group, -relcover) #these are updated in traitdat, can remove from here
+          mutate(species = clean_code, rawcount = relcover) #despite naming in file, it's actually raw counts not relative cover
+         
 #JRG notes, all abundances using the RAW data file are raw abundances, not relative, and has adapted scripts accordingly
 
 summary(abundat)
@@ -33,7 +34,8 @@ dim(abundat)
 abund_trait_dat = left_join(abundat, traitdat, by= "species") %>% #
                   mutate(Line = as.factor(Line), habitat=as.factor(habitat), watering=as.factor(watering), 
                          fertilization=as.factor(fertilization), WFtreatment=as.factor(WFtreatment), Plot=as.factor(Plot), 
-                         species = as.factor(species), origin = as.factor(origin))
+                         species = as.factor(species), origin = as.factor(origin)) 
+  
 dim(abund_trait_dat)
 summary(abund_trait_dat)
 
@@ -58,7 +60,7 @@ all_abtraits = left_join(abund_trait_dat, rawab) %>%
                mutate(relab = rawcount/totplotincmissing) %>%
                mutate(relab_traitsonly = rawcount/totplottraits) %>%
                mutate(habitat = fct_recode(habitat, "Harsh" = "Harshserp", "Lush" = "Lushserp")) %>%
-               mutate(WFtreatment = fct_recode(WFtreatment, "R" = "W", "N" = "F", "NR" = "FW"))
+               mutate(WFtreatment = fct_recode(WFtreatment, "W" = "W", "N" = "F", "WN" = "FW"))
 #all_abtraits will have some relab_traitsonly greater than 1, this is species that don't have trait values
 #so, their CWM trait values will be NA, so no need to filter them out here
 summary(all_abtraits)
@@ -96,7 +98,7 @@ cwmdat = cwmdat_a %>%
          ungroup()%>%
          mutate(watering=as.factor(ifelse(watering=="unwatered","none","watered")),
          fertilization=as.factor(ifelse(fertilization=="unfertilized","none","fertilized"))) %>%
-         mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","R", "N", "NR"))) #to match Eskelinen et al. 2021
+         mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","W", "N", "WN")))
 
 summary(cwmdat)        
 dim(cwmdat) #90 plots
@@ -364,7 +366,7 @@ all_anova_pctraits_wider2 = all_anova_pctraits %>%
 #write.csv(all_anova_pctraits_wider2, file = "Output tables/CWM_pctraits_ANOVA_all_wide.csv")
 
 #### Post-hoc contrasts ####
-library(multcomp)
+
 ##SCT ##
 #3 way is sig
 SCT_lm =lme(SCT_CWM ~ habitat*watering*fertilization,random=~1|Line, data=cwmdat,na.action=na.exclude,method = "REML")
@@ -380,16 +382,16 @@ cld_SCT = as.data.frame(cld(SCT_emm,
           rename(SCT_letters = .group)  %>% # Rename the letters column
           mutate(WFtreatment = as.factor(case_when(
                 watering == "none" & fertilization == "none" ~ "C",
-                watering == "watered" & fertilization == "none" ~ "R",
+                watering == "watered" & fertilization == "none" ~ "W",
                 watering == "none" & fertilization == "fertilized" ~ "N",
-                watering == "watered" & fertilization == "fertilized" ~ "NR"
+                watering == "watered" & fertilization == "fertilized" ~ "WN"
           ))) %>%
-      mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","R", "N", "NR")))
+      mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","W", "N", "WN")))
           
 ## Mass ##
 #2 way: hab x fert is sig #
 Mass_lm=lme(Mass_CWM ~ habitat*watering+habitat*fertilization+watering*fertilization,random=~1|Line, data=cwmdat,na.action=na.exclude,method = "REML")
-anova(mass_lm)
+anova(Mass_lm)
 
 Mass_emm = emmeans(Mass_lm,  ~ habitat*watering*fertilization) #keep all factors in here to generate letters
 
@@ -401,11 +403,11 @@ cld_Mass = as.data.frame(cld(Mass_emm,
   rename(Mass_letters = .group)  %>% # Rename the letters column
   mutate(WFtreatment = as.factor(case_when(
     watering == "none" & fertilization == "none" ~ "C",
-    watering == "watered" & fertilization == "none" ~ "R",
+    watering == "watered" & fertilization == "none" ~ "W",
     watering == "none" & fertilization == "fertilized" ~ "N",
-    watering == "watered" & fertilization == "fertilized" ~ "NR"
+    watering == "watered" & fertilization == "fertilized" ~ "WN"
   ))) %>%
-  mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","R", "N", "NR")))
+  mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","W", "N", "WN")))
 
 ## SCP ##
 #2 way: hab x watering is sig #
@@ -423,11 +425,11 @@ cld_SCP = as.data.frame(cld(SCP_emm,
   rename(SCP_letters = .group)  %>% # Rename the letters column
   mutate(WFtreatment = as.factor(case_when(
     watering == "none" & fertilization == "none" ~ "C",
-    watering == "watered" & fertilization == "none" ~ "R",
+    watering == "watered" & fertilization == "none" ~ "W",
     watering == "none" & fertilization == "fertilized" ~ "N",
-    watering == "watered" & fertilization == "fertilized" ~ "NR"
+    watering == "watered" & fertilization == "fertilized" ~ "WN"
   ))) %>%
-  mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","R", "N", "NR")))
+  mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","W", "N", "WN")))
 
 ## CN ##
 #Only main effects of habitat and fertilization are sig #
@@ -444,11 +446,11 @@ cld_CN = as.data.frame(cld(CN_emm,
   rename(CN_letters = .group)  %>% # Rename the letters column
   mutate(WFtreatment = as.factor(case_when(
     watering == "none" & fertilization == "none" ~ "C",
-    watering == "watered" & fertilization == "none" ~ "R",
+    watering == "watered" & fertilization == "none" ~ "W",
     watering == "none" & fertilization == "fertilized" ~ "N",
-    watering == "watered" & fertilization == "fertilized" ~ "NR"
+    watering == "watered" & fertilization == "fertilized" ~ "WN"
   ))) %>%
-  mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","R", "N", "NR")))
+  mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","W", "N", "WN")))
 
 ## Length ## 
 #2 way: hab x fert is sig #
@@ -466,11 +468,11 @@ cld_Length = as.data.frame(cld(Length_emm,
   rename(Length_letters = .group)  %>% # Rename the letters column
   mutate(WFtreatment = as.factor(case_when(
     watering == "none" & fertilization == "none" ~ "C",
-    watering == "watered" & fertilization == "none" ~ "R",
+    watering == "watered" & fertilization == "none" ~ "W",
     watering == "none" & fertilization == "fertilized" ~ "N",
-    watering == "watered" & fertilization == "fertilized" ~ "NR"
+    watering == "watered" & fertilization == "fertilized" ~ "WN"
   ))) %>%
-  mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","R", "N", "NR")))
+  mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","W", "N", "WN")))
 
 ## Starch ## 
 #2 ways: hab x fert and hab x watering are sig #
@@ -487,11 +489,11 @@ cld_Starch = as.data.frame(cld(Starch_emm,
   rename(Starch_letters = .group)  %>% # Rename the letters column
   mutate(WFtreatment = as.factor(case_when(
     watering == "none" & fertilization == "none" ~ "C",
-    watering == "watered" & fertilization == "none" ~ "R",
+    watering == "watered" & fertilization == "none" ~ "W",
     watering == "none" & fertilization == "fertilized" ~ "N",
-    watering == "watered" & fertilization == "fertilized" ~ "NR"
+    watering == "watered" & fertilization == "fertilized" ~ "WN"
   ))) %>%
-  mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","R", "N", "NR")))
+  mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","W", "N", "WN")))
 ## Shape ##
 #habitat x fert is sig, habitat x watering is marginally sig#
 Shape_lm =lme(Shape_CWM ~ habitat*watering+habitat*fertilization+watering*fertilization,random=~1|Line, data=cwmdat,na.action=na.exclude,method = "REML")
@@ -508,11 +510,11 @@ cld_Shape = as.data.frame(cld(Shape_emm,
   rename(Shape_letters = .group)  %>% # Rename the letters column
   mutate(WFtreatment = as.factor(case_when(
     watering == "none" & fertilization == "none" ~ "C",
-    watering == "watered" & fertilization == "none" ~ "R",
+    watering == "watered" & fertilization == "none" ~ "W",
     watering == "none" & fertilization == "fertilized" ~ "N",
-    watering == "watered" & fertilization == "fertilized" ~ "NR"
+    watering == "watered" & fertilization == "fertilized" ~ "WN"
   ))) %>%
-  mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","R", "N", "NR")))
+  mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","W", "N", "WN")))
 
 
 #### Figures ####
@@ -529,8 +531,10 @@ SCTplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=SCT_CWM, fill = habitat)
          labs(fill = "Habitat")
 
 a= SCTplot + geom_text(data = cld_SCT, aes( x = WFtreatment_order, y = 2.1, group = habitat, label = SCT_letters ),
-                    position = position_dodge(width = 0.9))
+                    position = position_dodge(width = 0.9)) 
 a
+a_alt = a + facet_grid(~habitat)
+a_alt
 
 Massplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=Mass_CWM, fill = habitat))+
   geom_boxplot(position = position_dodge(.9))+
@@ -546,7 +550,8 @@ Massplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=Mass_CWM, fill = habita
 
 b= Massplot + geom_text(data = cld_Mass, aes( x = WFtreatment_order, y = 2, group = habitat, label = Mass_letters ),
                     position = position_dodge(width = 0.9))
-
+b_alt = b + facet_grid(~habitat)
+b_alt
 
 SCPplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=SCP_CWM, fill = habitat))+
   geom_boxplot(position = position_dodge(.9))+
@@ -562,6 +567,8 @@ SCPplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=SCP_CWM, fill = habitat)
 
 c= SCPplot + geom_text(data = cld_SCP, aes( x = WFtreatment_order, y = 2.1, group = habitat, label = SCP_letters ),
                     position = position_dodge(width = 0.9))
+c_alt = c + facet_grid(~habitat)
+c_alt
 
 CNplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=CN_CWM, fill = habitat))+
   geom_boxplot(position = position_dodge(.9))+
@@ -577,6 +584,9 @@ CNplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=CN_CWM, fill = habitat))+
 
 d= CNplot + geom_text(data = cld_CN, aes( x = WFtreatment_order, y = 26, group = habitat, label = CN_letters ),
                     position = position_dodge(width = 0.9))
+d_alt = d + facet_grid(~habitat)
+d_alt
+
 Lengthplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=Length_CWM, fill = habitat))+
   geom_boxplot(position = position_dodge(.9))+
   labs(title="",subtitle = "",y="CWM Length", x="")+
@@ -591,6 +601,10 @@ Lengthplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=Length_CWM, fill = ha
 
 e =Lengthplot + geom_text(data = cld_Length, aes( x = WFtreatment_order, y = 2.5, group = habitat, label = Length_letters ),
                     position = position_dodge(width = 0.9))
+e
+e_alt = e + facet_grid(~habitat)
+e_alt
+
 Starchplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=Starch_CWM, fill = habitat))+
   geom_boxplot(position = position_dodge(.9))+
   labs(title="",subtitle = "",y="CWM Starch", x="")+
@@ -605,7 +619,9 @@ Starchplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=Starch_CWM, fill = ha
 
 f= Starchplot + geom_text(data = cld_Starch, aes( x = WFtreatment_order, y = 1.05, group = habitat, label = Starch_letters ),
                     position = position_dodge(width = 0.9))
-
+f
+f_alt = f + facet_grid(~habitat)
+f_alt
 
 Shapeplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=Shape_CWM, fill = habitat))+
   geom_boxplot(position = position_dodge(.9))+
@@ -621,19 +637,33 @@ Shapeplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=Shape_CWM, fill = habi
 
 g= Shapeplot + geom_text(data = cld_Shape, aes( x = WFtreatment_order, y = -1.65, group = habitat, label = Shape_letters ),
                     position = position_dodge(width = 0.9))
+g
+g_alt = g + facet_grid(~habitat)
+g_alt
 ### save figure 2: CWM traits ###
+#need to drop one of the graphs to make it even...
 plot_grid(a + theme(legend.position = "none"),
           b+ theme(legend.position = "none"),
           c+ theme(legend.position = "none"),
           d+ theme(legend.position = "none"),
-         # e+ theme(legend.position = "none"), #ECE didn't have length in her graph, could add/remove here
+          e+ theme(legend.position = "none"), #ECE didn't have length in her graph, could add/remove here
           f, 
           g,
-          ncol = 2, nrow = 3,
-          labels = c("A.", "B.", "C.", "D.", "E.", "Fval.", "G."), label_size=14)
-#note, can't get formatting to look good with really long panel
+          ncol = 2, nrow = 4,
+          labels = c("A.", "B.", "C.", "D.", "E.", "F.", "G."), label_size=14)
 
 #ggsave("Plots/Fig2_CWMresponses.jpg", height = 10, width = 15)
 e
 #ggsave("Plots/Fig2_CWMresponses_length.jpg", height = 5, width = 8)
 
+#next make alternate faceted panel
+plot_grid(a_alt + theme(legend.position = "none"),
+          b_alt+ theme(legend.position = "none"),
+          c_alt+ theme(legend.position = "none"),
+          d_alt+ theme(legend.position = "none"),
+          e_alt + theme(legend.position = "none"), #ECE didn't have length in her graph, could add/remove here
+          f_alt, 
+          g_alt,
+          ncol = 2,
+          labels = c("A.", "B.", "C.", "D.", "E.", "F.", "G."), label_size=14)
+#ggsave("Plots/Fig2_CWMresponses_faceted.jpg", height = 10, width = 10)
