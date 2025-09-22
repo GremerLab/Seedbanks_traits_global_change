@@ -646,10 +646,10 @@ plot_grid(a + theme(legend.position = "none"),
           b+ theme(legend.position = "none"),
           c+ theme(legend.position = "none"),
           d+ theme(legend.position = "none"),
-          e+ theme(legend.position = "none"), #ECE didn't have length in her graph, could add/remove here
+         # e+ theme(legend.position = "none"), #ECE didn't have length in her graph, could add/remove here
           f, 
           g,
-          ncol = 2, nrow = 4,
+          ncol = 2, nrow = 3,
           labels = c("A.", "B.", "C.", "D.", "E.", "F.", "G."), label_size=14)
 
 #ggsave("Plots/Fig2_CWMresponses.jpg", height = 10, width = 15)
@@ -661,7 +661,7 @@ plot_grid(a_alt + theme(legend.position = "none"),
           b_alt+ theme(legend.position = "none"),
           c_alt+ theme(legend.position = "none"),
           d_alt+ theme(legend.position = "none"),
-          e_alt + theme(legend.position = "none"), #ECE didn't have length in her graph, could add/remove here
+        #  e_alt + theme(legend.position = "none"), #ECE didn't have length in her graph, could add/remove here
           f_alt, 
           g_alt,
           ncol = 2,
