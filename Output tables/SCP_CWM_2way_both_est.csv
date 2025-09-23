@@ -1,0 +1,8 @@
+"","Est","factor","trait"
+"(Intercept)",0.266843654633147,"(Intercept)","SCP_CWM"
+"habitatLush",-1.07286567336727,"habitatLush","SCP_CWM"
+"wateringwatered",-0.791069708565842,"wateringwatered","SCP_CWM"
+"fertilizationnone",0.0651045580345438,"fertilizationnone","SCP_CWM"
+"habitatLush:wateringwatered",0.720426853084178,"habitatLush:wateringwatered","SCP_CWM"
+"habitatLush:fertilizationnone",-0.0749975743576879,"habitatLush:fertilizationnone","SCP_CWM"
+"wateringwatered:fertilizationnone",0.0676551910823598,"wateringwatered:fertilizationnone","SCP_CWM"

@@ -1,0 +1,8 @@
+"","Est","factor","trait"
+"(Intercept)",0.575077163422194,"(Intercept)","Starch_CWM"
+"habitatLush",0.401788880203482,"habitatLush","Starch_CWM"
+"wateringwatered",0.152226107329696,"wateringwatered","Starch_CWM"
+"fertilizationnone",-0.305550244104174,"fertilizationnone","Starch_CWM"
+"habitatLush:wateringwatered",-0.20670629650727,"habitatLush:wateringwatered","Starch_CWM"
+"habitatLush:fertilizationnone",0.26718018328461,"habitatLush:fertilizationnone","Starch_CWM"
+"wateringwatered:fertilizationnone",0.0431957614813438,"wateringwatered:fertilizationnone","Starch_CWM"
