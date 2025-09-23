@@ -109,7 +109,7 @@ str(cwmdat)
 indtraitlist = c("SCT_CWM","Mass_CWM" ,"SCP_CWM", "CN_CWM" ,"Length_CWM", "Starch_CWM", "Shape_CWM")
 length(indtraitlist)
 output_ind = list() 
-
+mod_est_ind = list()
 
 for (i in 1:length(indtraitlist)){
   modeldat=cwmdat
@@ -124,11 +124,11 @@ for (i in 1:length(indtraitlist)){
   ##  with 3 way interaction 
   m0=lme((responsevar)~ habitat*watering*fertilization,random=~1|Line, data=modeldat,na.action=na.exclude,method = "REML")
   #m0ml=lme((responsevar)~ habitat*watering*fertilization,random=~1|Line, data=modeldat,na.action=na.exclude,method = "ML")
-  #JRG: we want something like this:  a= anova(m0ml)$'p-value'
+  
  anova_output0 = as.data.frame(anova(m0)) %>%
                mutate(factor = rownames(.), trait = indtraitlist[i])
  anova_output0_table = anova_output0 %>%
-          select(-factor) %>%
+          dplyr:: select(-factor) %>%
           kable(
           digits = 3,
           caption = "ANOVA for Fixed Effects",
@@ -138,15 +138,20 @@ for (i in 1:length(indtraitlist)){
           bootstrap_options = c("striped", "hover", "condensed"),
           full_width = FALSE
         )
-
+ 
+   model_output0 = as.data.frame(m0$coefficients$fixed) %>%
+     mutate(factor = rownames(.), trait = indtraitlist[i]) %>%
+     rename(Est = "m0$coefficients$fixed")
+   
   if(round(anova_output0$'p-value'[anova_output0$factor == "habitat:watering:fertilization"],3) >0.05){ #condition 1
     m1=lme((responsevar)~ habitat*watering+habitat*fertilization+watering*fertilization,random=~1|Line, data=modeldat,na.action=na.exclude,method = "REML")
     #m1ml=lme((responsevar)~ habitat*watering+habitat*fertilization+watering*fertilization,random=~1|Line, data=modeldat,na.action=na.exclude,method = "ML")
     # Create the kable table
     anova_output1 = as.data.frame(anova(m1)) %>%
       mutate(factor = rownames(.), trait = indtraitlist[i])
+    
     anova_output1_table = anova_output1%>%
-        select(-factor) %>%
+      dplyr::select(-factor) %>%
           kable(
           digits = 3,
           caption = "ANOVA for Fixed Effects",
@@ -156,12 +161,18 @@ for (i in 1:length(indtraitlist)){
           bootstrap_options = c("striped", "hover", "condensed"),
           full_width = FALSE
         )
+    
+    model_output1 = as.data.frame(m1$coefficients$fixed) %>%
+      mutate(factor = rownames(.), trait = indtraitlist[i]) %>%
+      rename(Est = "m1$coefficients$fixed")
+    
           if(round(anova_output1$'p-value'[5],3) >0.05 & round(anova_output1$'p-value'[6],3) >0.05 & round(anova_output1$'p-value'[7],3) >0.05){ #condition 2
             m2=lme((responsevar)~ habitat+ watering+ fertilization,random=~1|Line, data=modeldat,na.action=na.exclude,method = "REML")
             anova_output2 = as.data.frame(anova(m2))%>%
               mutate(factor = rownames(.), trait = indtraitlist[i])
+            
             anova_output2_table = anova_output2 %>%
-              select(-factor) %>%
+              dplyr::select(-factor) %>%
               kable(
                 digits = 3,
                 caption = "ANOVA for Fixed Effects",
@@ -171,18 +182,29 @@ for (i in 1:length(indtraitlist)){
                 bootstrap_options = c("striped", "hover", "condensed"),
                 full_width = FALSE
               )
+            
+            model_output2 = as.data.frame(m2$coefficients$fixed) %>%
+              mutate(factor = rownames(.), trait = indtraitlist[i]) %>%
+              rename(Est = "m2$coefficients$fixed")
+            
             #output results for main factors only 
             output_ind[[i]]= anova_output2
+            mod_est_ind[[i]]= model_output2
             write.csv(anova_output2, file = paste("Output tables/",response,"_main_both.csv",sep="")) 
+            write.csv(model_output2, file = paste("Output tables/",response,"_main_both_est.csv",sep="")) 
             kableExtra::save_kable(anova_output2_table, file = paste("Output tables/",response,"_main_both.html",sep=""))      
             } else {
             #output results for 2 ways if they are significant 
               output_ind[[i]]= anova_output1
+              mod_est_ind[[i]]= model_output1
                write.csv(anova_output1, file = paste("Output tables/",response,"_2way_both.csv",sep=""))
+               write.csv(model_output1, file = paste("Output tables/",response,"_2way_both_est.csv",sep="")) 
             kableExtra::save_kable(anova_output1_table, file = paste("Output tables/",response,"_2way_both.html",sep="")) }     
   } else { #output results for 3 way if it is significant 
     output_ind[[i]]= anova_output0
+    mod_est_ind[[i]]= model_output0
     write.csv(anova_output0, file = paste("Output tables/",response,"_3way_both.csv",sep=""))
+    write.csv(model_output0, file = paste("Output tables/",response,"_3way_both_est.csv",sep="")) 
     kableExtra::save_kable(anova_output0_table, file = paste("Output tables/",response,"_3way_both.html",sep=""))
   }
    
@@ -199,27 +221,27 @@ all_anova_indtraits = do.call(rbind.data.frame, output_ind) %>%
 all_anova_indtraits_wider = all_anova_indtraits %>%
               mutate(DF = paste(numDF, denDF, sep = ","), 
                      FP= paste(Fval,p, sep = ", ")) %>%
-              select(-numDF, -denDF, -Fval, -p) %>%
+              dplyr::select(-numDF, -denDF, -Fval, -p) %>%
               pivot_wider(
                 id_cols = c(trait),
                 names_from = factor, 
                 values_from = c(DF, FP)
               ) %>%
             rename(DF = DF_habitat) %>%
-            select(!starts_with("DF_")) %>%
+            dplyr::select(!starts_with("DF_")) %>%
             rename_with(~str_remove(.x, "FP_")) 
 #Nicer tohave sub columns for F and p, so pivot longer again
 all_anova_indtraits_wider2 = all_anova_indtraits %>%
         mutate(Fval = as.character(Fval)) %>%
         mutate(DF = paste(numDF, denDF, sep = ",")) %>%
-        select(-numDF, -denDF) %>%
+        dplyr::select(-numDF, -denDF) %>%
         pivot_wider(
         id_cols = c(trait),
         names_from = factor, 
         values_from = c(DF, Fval, p)
       ) %>%
       rename(DF = DF_habitat) %>%
-      select(!starts_with("DF_")) %>%
+      dplyr::select(!starts_with("DF_")) %>%
      pivot_longer(
        cols = c(starts_with("Fval_"), starts_with("p_")),
        names_to= "statfact",
@@ -235,6 +257,19 @@ all_anova_indtraits_wider2 = all_anova_indtraits %>%
           
 #write.csv(all_anova_indtraits_wider2, file = "Output tables/CWM_indtraits_ANOVA_all_wide.csv")
 
+
+#put model estimates together and match with anovas
+all_est_indtraits = do.call(rbind.data.frame, mod_est_ind)
+
+all_anova_est = left_join(all_anova_indtraits,all_est_indtraits)
+
+#format estimates
+all_anova_indtraits_wider = all_est_indtraits %>%
+  pivot_wider(
+    id_cols = c(trait),
+    names_from = factor, 
+    values_from = Est
+  )  
 
 #### Model outputs for CWM traits calculated from PC scores (multivariate traits) ####
 pctraitlist = c("PC1_CWM","PC2_CWM" ,"PC3_CWM", "PC4_CWM")
@@ -667,3 +702,5 @@ plot_grid(a_alt + theme(legend.position = "none"),
           ncol = 2,
           labels = c("A.", "B.", "C.", "D.", "E.", "F.", "G."), label_size=14)
 #ggsave("Plots/Fig2_CWMresponses_faceted.jpg", height = 10, width = 10)
+e_alt
+#ggsave("Plots/Fig2_CWMresponses_faceted_ength.jpg", height = 5, width = 8)
