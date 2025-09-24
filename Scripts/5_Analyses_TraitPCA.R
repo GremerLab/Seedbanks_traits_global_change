@@ -11,6 +11,7 @@ library(modelsummary)
 library(ggplot2)
 library(cowplot)
 library(ggcorrplot)
+library(ggrepel)
 ### data prep ####
 # input transformed trait data from 4_trait_transformations
 traitdat=read.csv("Cleaned data/transformed_traitdata.csv",header = T) %>%
@@ -104,14 +105,14 @@ pc12 <- autoplot(trait.pca, data = all2, colour = 'origin', shape =  "Functional
                      arrow = arrow(length = unit(0.2, "cm"), type= "closed"),  linewidth = 0.75, color = "black")  + #, color = loadingvals$color_group
         #geom_text(data = loadingvals, mapping = aes(label = trait, x = PC1*5.5, y=PC2*5.5), size = 6 ) +  #multiply by scores to move a little away from arrow
         scale_linetype_manual(values = c("dashed", "dotted", "solid") )+ 
-        geom_text_repel(data = loadingvals, aes(x =  PC1*5.5, y = PC2*5.6, label= trait), size=6 )
+        geom_text_repel(data = loadingvals, aes(x =  PC1*5.5, y = PC2*5.6, label= trait), size=8 )
 pc12
   #add means for functional groups
 fig1a <- pc12 +  geom_point(x=funtype_mean$`mean(PC1)`[1],y=funtype_mean$`mean(PC2)`[1], size=6, shape = 1, stroke =1.5)+
   geom_point(x=funtype_mean$`mean(PC1)`[2],y=funtype_mean$`mean(PC2)`[2], size=6, shape = 2, stroke =1.5) + #stroke controls outline width
   geom_point(x=funtype_mean$`mean(PC1)`[3],y=funtype_mean$`mean(PC2)`[3], size=6, shape = 0, stroke =1.5) +
   theme(legend.direction ="horizontal", legend.position = "bottom", legend.title = element_blank(), 
-        text = element_text(size = 18), legend.key.width = unit(2, "line")) + 
+        text = element_text(size = 28), legend.key.width = unit(2, "line")) + 
   guides(linetype = "none")
 fig1a 
 
@@ -121,7 +122,7 @@ pc34 <- autoplot(trait.pca, data = all2, colour = 'origin', shape =  "Functional
   theme_bw()+
   geom_segment(data = loadingvals, aes(x=0, y=0, xend = PC3*5, yend = PC4*5, linetype = category), #0.8 just scales loading arrows to fit graph, autoplot does this automatically when plotting loading = T
                arrow = arrow(length = unit(0.2, "cm"), type= "closed"),  size = 0.75, color = "black")  + #, color = loadingvals$color_group
-  geom_text(data = loadingvals, mapping = aes(label = trait, x = PC3*6, y=PC4*5.3), size = 6) +  #multiply by 5.4 to move a little away from arrow
+  geom_text(data = loadingvals, mapping = aes(label = trait, x = PC3*6, y=PC4*5.3), size = 8) +  #multiply by 5.4 to move a little away from arrow
   scale_linetype_manual(values = c("dashed", "dotted", "solid") ) #+ 
  # geom_text_repel(data = loadingvals, aes(x =  PC1*5, y = PC2*5, label= trait), size=6 )
 pc34
@@ -130,15 +131,16 @@ fig1b <- pc34 +  geom_point(x=funtype_mean$`mean(PC3)`[1],y=funtype_mean$`mean(P
   geom_point(x=funtype_mean$`mean(PC3)`[2],y=funtype_mean$`mean(PC4)`[2], size=6, shape = 2, stroke =1.5) +
   geom_point(x=funtype_mean$`mean(PC3)`[3],y=funtype_mean$`mean(PC4)`[3], size=6, shape = 0, stroke =1.5) +
   theme(legend.direction = "horizontal", legend.position = "bottom", legend.title = element_blank(), 
-        text = element_text(size = 16),  legend.key.width = unit(2, "line")) + 
+        text = element_text(size = 28),  legend.key.width = unit(2, "line")) + 
   guides(shape = "none", color = "none")
 fig1b 
 
 
 ####Figure 1: Trait PCA ####
-plot_grid(fig1a , fig1b  , labels = c("A.", "B."), label_size=14)
+plot_grid(fig1a , fig1b  , labels = c("A.", "B."), label_size=18)
 
-#ggsave("Plots/Fig1_TraitPCA.jpg", height = 10, width = 20)
+#ggsave("Plots/Fig1_TraitPCA.jpg", height = 8, width = 16)
+#ggsave("Plots/Fig1_TraitPCA.pdf", height = 8, width = 16) #note, some post-processing was done to fix vector labels, size of points in legend, etc
 
 ####Figure SX: Trait PCA with convex hulls ####
 #add convex hulls for forb, grass, Nfixer
