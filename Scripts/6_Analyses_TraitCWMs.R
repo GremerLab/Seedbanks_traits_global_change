@@ -46,7 +46,7 @@ rawab_plots=abund_trait_dat%>%
 
 #below calculates the total abundance for species in those plots for which we had trait data
 rawab_wtraits =abund_trait_dat%>%
-  filter(is.na(Mass)==F & is.na(CN)==F)%>% #removes rows that are missing seed mass or cn value
+  filter(is.na(Mass)==F & is.na(PC2)==F)%>% #removes rows that are missing seed mass or PC2 value
   group_by(Plot,WFtreatment)%>%
   dplyr::summarise(totplottraits=sum(rawcount))
 
@@ -74,7 +74,7 @@ summary(all_abtraits %>%
 
 #check what coverage we have for species that we do have traits
 relabsummary = all_abtraits %>% 
-          filter(is.na(Mass)==F & is.na(CN)==F)  %>% 
+          filter(is.na(Mass)==F & is.na(PC2)==F)  %>% 
           group_by(Plot) %>%
           summarize(sumrelab = sum(relab, na.rm=T)) #median = 90%, mean = 79.9%
 sd(relabsummary$sumrelab)
@@ -87,7 +87,7 @@ sd(relabsummary$sumrelab)
 #first, get trait value * relative abundance for each species in each plot
 #NOTE: this uses the relative abundance for the species for which we have traits.  If want "true" relative abundance, change to "relab"
 cwmdat_a = all_abtraits %>%
-         mutate(across(c(SCT,Mass ,SCP,Carbon, CN ,Length, Starch, Shape, Disp,
+         mutate(across(c(SCT,Mass ,SCP,Carbon, PC2 ,Length, Starch, Shape, Disp,
                          Texture, Compact), ~.x*relab_traitsonly, .names = "{.col}_CWM")) %>%
          mutate(across(starts_with("PC"), ~.x*relab_traitsonly,.names = "{.col}_CWM") ) 
 
@@ -106,7 +106,7 @@ str(cwmdat)
 #write.csv(cwmdat, "Output data/CWMs_traits_PCs.csv")
 
 #### Model outputs for individual traits ####  
-indtraitlist = c("SCT_CWM","Mass_CWM" ,"SCP_CWM", "CN_CWM" ,"Length_CWM", "Starch_CWM", "Shape_CWM")
+indtraitlist = c("SCT_CWM","Mass_CWM" ,"SCP_CWM", "PC2_CWM" ,"Length_CWM", "Starch_CWM", "Shape_CWM")
 length(indtraitlist)
 output_ind = list() 
 mod_est_ind = list()
@@ -293,7 +293,7 @@ for (i in 1:length(pctraitlist)){
   anova_output0 = as.data.frame(anova(m0))  %>%
     mutate(factor = rownames(.), trait = pctraitlist[i])
   anova_output0_table = anova_output0 %>%
-    select(-factor) %>%
+    dplyr::select(-factor) %>%
     kable(
       digits = 3,
       caption = "ANOVA for Fixed Effects",
@@ -311,7 +311,7 @@ for (i in 1:length(pctraitlist)){
     anova_output1 = as.data.frame(anova(m1))  %>%
       mutate(factor = rownames(.), trait = pctraitlist[i])
     anova_output1_table = anova_output1%>%
-      select(-factor) %>%
+      dplyr::select(-factor) %>%
       kable(
         digits = 3,
         caption = "ANOVA for Fixed Effects",
@@ -326,7 +326,7 @@ for (i in 1:length(pctraitlist)){
       anova_output2 = as.data.frame(anova(m2))  %>%
         mutate(factor = rownames(.), trait = pctraitlist[i])
       anova_output2_table = anova_output2 %>%
-        select(-factor) %>%
+        dplyr::select(-factor) %>%
         kable(
           digits = 3,
           caption = "ANOVA for Fixed Effects",
@@ -364,27 +364,27 @@ all_anova_pctraits = do.call(rbind.data.frame, output_pc) %>%
 all_anova_pctraits_wider = all_anova_pctraits %>%
   mutate(DF = paste(numDF, denDF, sep = ","), 
          FP= paste(Fval,p, sep = ", ")) %>%
-  select(-numDF, -denDF, -Fval, -p) %>%
+  dplyr::select(-numDF, -denDF, -Fval, -p) %>%
   pivot_wider(
     id_cols = c(trait),
     names_from = factor, 
     values_from = c(DF, FP)
   ) %>%
   rename(DF = DF_habitat) %>%
-  select(!starts_with("DF_")) %>%
+  dplyr::select(!starts_with("DF_")) %>%
   rename_with(~str_remove(.x, "FP_")) 
 #Nicer to have sub columns for F and p, so pivot longer again
 all_anova_pctraits_wider2 = all_anova_pctraits %>%
   mutate(Fval = as.character(Fval)) %>%
   mutate(DF = paste(numDF, denDF, sep = ",")) %>%
-  select(-numDF, -denDF) %>%
+  dplyr::select(-numDF, -denDF) %>%
   pivot_wider(
     id_cols = c(trait),
     names_from = factor, 
     values_from = c(DF, Fval, p)
   ) %>%
   rename(DF = DF_habitat) %>%
-  select(!starts_with("DF_")) %>%
+  dplyr::select(!starts_with("DF_")) %>%
   pivot_longer(
     cols = c(starts_with("Fval_"), starts_with("p_")),
     names_to= "statfact",
@@ -466,19 +466,19 @@ cld_SCP = as.data.frame(cld(SCP_emm,
   ))) %>%
   mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","W", "N", "WN")))
 
-## CN ##
+## PC2 ##
 #Only main effects of habitat and fertilization are sig #
-CN_lm =lme(CN_CWM~ habitat+ watering+ fertilization,random=~1|Line, data=cwmdat,na.action=na.exclude,method = "REML")
-anova(CN_lm) 
+PC2_lm =lme(PC2_CWM~ habitat+ watering+ fertilization,random=~1|Line, data=cwmdat,na.action=na.exclude,method = "REML")
+anova(PC2_lm) 
 
-CN_emm = emmeans(CN_lm,  ~ habitat*watering*fertilization) 
+PC2_emm = emmeans(PC2_lm,  ~ habitat*watering*fertilization) 
 
-cld_CN = as.data.frame(cld(CN_emm, 
+cld_PC2 = as.data.frame(cld(PC2_emm, 
                                adjust = "Tukey",     # p-value adjustment
                                Letters = letters,    # Specify letters to use
                                alpha = 0.05,         # Significance level
                                reversed = TRUE) )  %>%    # Sort means in decreasing order
-  rename(CN_letters = .group)  %>% # Rename the letters column
+  rename(PC2_letters = .group)  %>% # Rename the letters column
   mutate(WFtreatment = as.factor(case_when(
     watering == "none" & fertilization == "none" ~ "C",
     watering == "watered" & fertilization == "none" ~ "W",
@@ -605,9 +605,9 @@ c= SCPplot + geom_text(data = cld_SCP, aes( x = WFtreatment_order, y = 2.1, grou
 c_alt = c + facet_grid(~habitat)
 c_alt
 
-CNplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=CN_CWM, fill = habitat))+
+PC2plot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=PC2_CWM, fill = habitat))+
   geom_boxplot(position = position_dodge(.9))+
-  labs(title="",subtitle = "",y="CWM CN", x="")+
+  labs(title="",subtitle = "",y="CWM PC2", x="")+
   scale_fill_grey(start=0.9, end=0.4) +
   scale_color_grey(start=0.4, end=0.7) +
   #facet_grid(rows = vars(type), cols=vars(habitat),switch="y",scales = "free")+
@@ -617,7 +617,7 @@ CNplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=CN_CWM, fill = habitat))+
         axis.title.y = element_text(size = 14))  +
   labs(fill = "Habitat")
 
-d= CNplot + geom_text(data = cld_CN, aes( x = WFtreatment_order, y = 26, group = habitat, label = CN_letters ),
+d= PC2plot + geom_text(data = cld_PC2, aes( x = WFtreatment_order, y = 26, group = habitat, label = PC2_letters ),
                     position = position_dodge(width = 0.9))
 d_alt = d + facet_grid(~habitat)
 d_alt
@@ -704,3 +704,175 @@ plot_grid(a_alt + theme(legend.position = "none"),
 #ggsave("Plots/Fig2_CWMresponses_faceted.jpg", height = 10, width = 10)
 e_alt
 #ggsave("Plots/Fig2_CWMresponses_faceted_ength.jpg", height = 5, width = 8)
+
+#### PC CWM contrasts and figures ####
+## PC1 ##
+#2 way is sig#
+PC1_lm=lme(PC1_CWM~ habitat*watering + habitat*fertilization + watering*fertilization,random=~1|Line, data=cwmdat,na.action=na.exclude,method = "REML")
+
+anova(PC1_lm) 
+
+PC1_emm = emmeans(PC1_lm,  ~ habitat*watering*fertilization) 
+
+cld_PC1 = as.data.frame(cld(PC1_emm, 
+                               adjust = "Tukey",     # p-value adjustment
+                               Letters = letters,    # Specify letters to use
+                               alpha = 0.05,         # Significance level
+                               reversed = TRUE) )  %>%    # Sort means in decreasing order
+  rename(PC1_letters = .group)  %>% # Rename the letters column
+  mutate(WFtreatment = as.factor(case_when(
+    watering == "none" & fertilization == "none" ~ "C",
+    watering == "watered" & fertilization == "none" ~ "W",
+    watering == "none" & fertilization == "fertilized" ~ "N",
+    watering == "watered" & fertilization == "fertilized" ~ "WN"
+  ))) %>%
+  mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","W", "N", "WN")))
+
+PC1plot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=PC1_CWM, fill = habitat))+
+  geom_boxplot(position = position_dodge(.9))+
+  labs(title="",subtitle = "",y="CWM PC1", x="")+
+  scale_fill_grey(start=0.9, end=0.4) +
+  scale_color_grey(start=0.4, end=0.7) +
+  #facet_grid(rows = vars(type), cols=vars(habitat),switch="y",scales = "free")+
+  theme_bw()+
+  theme(panel.spacing = unit(0, units = "cm"), 
+        legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14))  +
+  labs(fill = "Habitat")
+
+pc1a= PC1plot + geom_text(data = cld_PC1, aes( x = WFtreatment_order, y = 2.1, group = habitat, label = PC1_letters ),
+                       position = position_dodge(width = 0.9)) 
+pc1a
+pc1a_alt = pc1a + facet_grid(~habitat)
+pc1a_alt
+
+## PC2 ##
+#Only main effects are sig #
+PC2_lm =lme(PC2_CWM~ habitat+ watering+ fertilization,random=~1|Line, data=cwmdat,na.action=na.exclude,method = "REML")
+anova(PC2_lm) 
+
+PC2_emm = emmeans(PC2_lm,  ~ habitat*watering*fertilization) 
+
+cld_PC2 = as.data.frame(cld(PC2_emm, 
+                           adjust = "Tukey",     # p-value adjustment
+                           Letters = letters,    # Specify letters to use
+                           alpha = 0.05,         # Significance level
+                           reversed = TRUE) )  %>%    # Sort means in decreasing order
+  rename(PC2_letters = .group)  %>% # Rename the letters column
+  mutate(WFtreatment = as.factor(case_when(
+    watering == "none" & fertilization == "none" ~ "C",
+    watering == "watered" & fertilization == "none" ~ "W",
+    watering == "none" & fertilization == "fertilized" ~ "N",
+    watering == "watered" & fertilization == "fertilized" ~ "WN"
+  ))) %>%
+  mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","W", "N", "WN")))
+
+PC2plot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=PC2_CWM, fill = habitat))+
+  geom_boxplot(position = position_dodge(.9))+
+  labs(title="",subtitle = "",y="CWM PC2", x="")+
+  scale_fill_grey(start=0.9, end=0.4) +
+  scale_color_grey(start=0.4, end=0.7) +
+  #facet_grid(rows = vars(type), cols=vars(habitat),switch="y",scales = "free")+
+  theme_bw()+
+  theme(panel.spacing = unit(0, units = "cm"), 
+        legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14))  +
+  labs(fill = "Habitat")
+
+PC2plot
+
+pc2a= PC2plot + geom_text(data = cld_PC2, aes( x = WFtreatment_order, y = 2.1, group = habitat, label = PC2_letters ),
+                          position = position_dodge(width = 0.9)) 
+pc2a
+pc2a_alt = pc2a + facet_grid(~habitat)
+pc2a_alt
+
+## PC3 ##
+#2 way is sig#
+PC3_lm=lme(PC3_CWM~ habitat*watering + habitat*fertilization + watering*fertilization,random=~1|Line, data=cwmdat,na.action=na.exclude,method = "REML")
+
+anova(PC3_lm) 
+
+PC3_emm = emmeans(PC3_lm,  ~ habitat*watering*fertilization) 
+
+cld_PC3 = as.data.frame(cld(PC3_emm, 
+                            adjust = "Tukey",     # p-value adjustment
+                            Letters = letters,    # Specify letters to use
+                            alpha = 0.05,         # Significance level
+                            reversed = TRUE) )  %>%    # Sort means in decreasing order
+  rename(PC3_letters = .group)  %>% # Rename the letters column
+  mutate(WFtreatment = as.factor(case_when(
+    watering == "none" & fertilization == "none" ~ "C",
+    watering == "watered" & fertilization == "none" ~ "W",
+    watering == "none" & fertilization == "fertilized" ~ "N",
+    watering == "watered" & fertilization == "fertilized" ~ "WN"
+  ))) %>%
+  mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","W", "N", "WN")))
+
+PC3plot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=PC3_CWM, fill = habitat))+
+  geom_boxplot(position = position_dodge(.9))+
+  labs(title="",subtitle = "",y="CWM PC3", x="")+
+  scale_fill_grey(start=0.9, end=0.4) +
+  scale_color_grey(start=0.4, end=0.7) +
+  #facet_grid(rows = vars(type), cols=vars(habitat),switch="y",scales = "free")+
+  theme_bw()+
+  theme(panel.spacing = unit(0, units = "cm"), 
+        legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14))  +
+  labs(fill = "Habitat")
+
+pc3a= PC3plot + geom_text(data = cld_PC3, aes( x = WFtreatment_order, y = 2.1, group = habitat, label = PC3_letters ),
+                          position = position_dodge(width = 0.9)) 
+pc3a
+pc3a_alt = pc3a + facet_grid(~habitat)
+pc3a_alt
+
+
+## PC4 ##
+#2 way is sig#
+PC4_lm=lme(PC4_CWM~ habitat*watering + habitat*fertilization + watering*fertilization,random=~1|Line, data=cwmdat,na.action=na.exclude,method = "REML")
+
+anova(PC4_lm) 
+
+PC4_emm = emmeans(PC4_lm,  ~ habitat*watering*fertilization) 
+
+cld_PC4 = as.data.frame(cld(PC4_emm, 
+                            adjust = "Tukey",     # p-value adjustment
+                            Letters = letters,    # Specify letters to use
+                            alpha = 0.05,         # Significance level
+                            reversed = TRUE) )  %>%    # Sort means in decreasing order
+  rename(PC4_letters = .group)  %>% # Rename the letters column
+  mutate(WFtreatment = as.factor(case_when(
+    watering == "none" & fertilization == "none" ~ "C",
+    watering == "watered" & fertilization == "none" ~ "W",
+    watering == "none" & fertilization == "fertilized" ~ "N",
+    watering == "watered" & fertilization == "fertilized" ~ "WN"
+  ))) %>%
+  mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","W", "N", "WN")))
+
+PC4plot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=PC4_CWM, fill = habitat))+
+  geom_boxplot(position = position_dodge(.9))+
+  labs(title="",subtitle = "",y="CWM PC4", x="")+
+  scale_fill_grey(start=0.9, end=0.4) +
+  scale_color_grey(start=0.4, end=0.7) +
+  #facet_grid(rows = vars(type), cols=vars(habitat),switch="y",scales = "free")+
+  theme_bw()+
+  theme(panel.spacing = unit(0, units = "cm"), 
+        legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14))  +
+  labs(fill = "Habitat")
+
+pc4a= PC4plot + geom_text(data = cld_PC4, aes( x = WFtreatment_order, y = 2.1, group = habitat, label = PC4_letters ),
+                          position = position_dodge(width = 0.9)) 
+pc4a
+pc4a_alt = pc4a + facet_grid(~habitat)
+pc4a_alt
+ 
+## Fig S3 ###
+plot_grid(pc1a_alt + theme(legend.position = "none"),
+          pc2a_alt+ theme(legend.position = "none"),
+          pc3a_alt, 
+          pc4a_alt,
+          ncol = 2,
+          labels = c("A.", "B.", "C.", "D."), label_size=14)
+#ggsave("Plots/FigS3_CWMresponses_PCs_faceted.jpg", height = 10, width = 10)

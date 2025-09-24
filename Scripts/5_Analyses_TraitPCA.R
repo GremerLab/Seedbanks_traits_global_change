@@ -19,7 +19,7 @@ traitdat=read.csv("Cleaned data/transformed_traitdata.csv",header = T) %>%
   mutate(species = as.factor(clean_code), annual = as.factor(annual), Functional.group = as.factor(Functional.group), 
          lump_dispcat = as.factor(lump_dispcat)) %>%
   mutate(origin = as.factor(ifelse(nat.inv=="native","Native","Non-Native"))) %>%
-  select(- clean_code, -nat.inv, -SCP) %>% #need clarification on difference between SCP and SCPpc.  SCPps used for Elwood dissertation
+  dplyr:: select(- clean_code, -nat.inv, -SCP) %>% #need clarification on difference between SCP and SCPpc.  SCPps used for Elwood dissertation
   rename(Mass = mass,SCP=SCPpc,Carbon = C, CN =cn,Length = L,Starch = starch, Shape="Fit_shape", Disp = disp2,
          Texture="texture_1", Compact="Fit_compact")
 
@@ -30,11 +30,11 @@ rownames(traitdat) = traitdat$species
 length(unique(traitdat$species))
 #split up dataframe into values vs metadata to run PCA
 traitdat_4PCA =traitdat%>%
-  dplyr::select(SCT,Mass ,SCP,Carbon, CN ,Length, Starch, Shape, Disp,
+  dplyr:: select(SCT,Mass ,SCP,Carbon, CN ,Length, Starch, Shape, Disp,
                 Texture, Compact)#
 
 traitdat_info =traitdat%>%
-  dplyr::select(species, annual, family, Functional.group, origin, lump_dispcat, mucilage)
+  dplyr:: select(species, annual, family, Functional.group, origin, lump_dispcat, mucilage)
 
 names(traitdat_4PCA)
 names(traitdat_info)
@@ -69,7 +69,7 @@ loadingvals=as.data.frame(loadingvals)
 all2= speciesvals %>% #joining species PCA scores with the main trait dataframe
   inner_join(traitdat)%>%
   mutate_at(vars(contains('PC')), list(as.numeric)) %>%
-  select(-X)
+  dplyr:: select(-X)
 
 names(all2)
 dim(all2)
@@ -260,11 +260,11 @@ dim(traitdat)
 dim(traitdat2)
 
 traitdat_4PCA2 =traitdat2%>%
-  dplyr::select(SCT,Mass ,SCP,Carbon, CN ,Length, Starch, Shape, Disp,
+  dplyr:: select(SCT,Mass ,SCP,Carbon, CN ,Length, Starch, Shape, Disp,
                 Texture, Compact)#
 
 traitdat_info2 =traitdat2%>%
-  dplyr::select(species, annual, family, Functional.group, origin, lump_dispcat, mucilage)
+  dplyr:: select(species, annual, family, Functional.group, origin, lump_dispcat, mucilage)
 
 ## trait PCA without 7 species missing texture
 trait.pca2<-prcomp(traitdat_4PCA2, scale=TRUE, center = T)
@@ -284,7 +284,7 @@ loadingvals2=as.data.frame(loadingvals2)
 all22= speciesvals2 %>% #joining species PCA scores with the main trait dataframe
   inner_join(traitdat2)%>%
   mutate_at(vars(contains('PC')), list(as.numeric)) %>%
-  select(-X)
+  dplyr:: select(-X)
 
 names(all22)
 dim(all22)
@@ -381,7 +381,7 @@ summary(m42)
 
 ####traitdat#### Trait correlation matrix, Fig S2 ####
 traits_all = traitdat %>%
-             select(SCT, Mass, SCP, Carbon, CN, Length, Starch, Shape, Disp, Texture, Compact, mucilage, Intensity, Perimeter =P)
+             dplyr:: select(SCT, Mass, SCP, Carbon, CN, Length, Starch, Shape, Disp, Texture, Compact, mucilage, Intensity, Perimeter =P)
 traitcor_all =as.data.frame(cor(traits_all))
 pmat=ggcorrplot::cor_pmat(x = traits_all)
 FigS2 = ggcorrplot::ggcorrplot(traitcor_all,type="upper",p.mat = pmat, lab=T,insig = "blank")
