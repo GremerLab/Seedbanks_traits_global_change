@@ -1,0 +1,5 @@
+"","Est","factor","trait"
+"(Intercept)",-0.34491099916841,"(Intercept)","PC2_CWM"
+"habitatLush",0.736744981725164,"habitatLush","PC2_CWM"
+"wateringwatered",0.0715654306908077,"wateringwatered","PC2_CWM"
+"fertilizationnone",0.0519871738726933,"fertilizationnone","PC2_CWM"
