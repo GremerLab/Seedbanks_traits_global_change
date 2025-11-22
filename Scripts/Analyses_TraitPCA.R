@@ -13,8 +13,7 @@ library(cowplot)
 library(ggcorrplot)
 library(ggrepel)
 ### data prep ####
-# input transformed trait data from 4_trait_transformations
-traitdat=read.csv("Data/transformed_traitdata.csv",header = T) 
+traitdat=read.csv("Data/transformed_traitdata.csv",header = T) #created in Data prep_trait_transformations.R
 
 names(traitdat)
 summary(traitdat)
@@ -291,7 +290,7 @@ pc122 <- autoplot(trait.pca2, data = all22, colour = 'origin', shape =  "Functio
   scale_color_grey(start = 0.4, end = 0.7)+ 
   theme_bw()+
   
-  geom_segment(data = loadingvals2, aes(x=0, y=0, xend = PC1*5, yend = PC2*5, linetype = category), #0.8 just scales loading arrows to fit graph, autoplot does this automatically when plotting loading = T
+  geom_segment(data = loadingvals2, aes(x=0, y=0, xend = PC1*5, yend = PC2*5, linetype = category), #*5  scales loading arrows to fit graph, autoplot does this automatically when plotting loading = T
                arrow = arrow(length = unit(0.2, "cm"), type= "closed"),  size = 0.75, color = "black")  + #, color = loadingvals$color_group
   geom_text(data = loadingvals2, mapping = aes(label = trait, x = PC1*5.4, y=PC2*5.4)) +  #multiply by 5.4 to move a little away from arrow
   scale_linetype_manual(values = c("dashed", "dotted", "solid") )
