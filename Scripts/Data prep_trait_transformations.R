@@ -53,6 +53,6 @@ datasummary_skim(traitdat_trans)
 names(traitdat_trans)
 
 #save transformed trait data for analyses
-#write.csv(traitdat_trans, "Data/transformed_traitdata2.csv")
+#write.csv(traitdat_trans, "Data/transformed_traitdata.csv")
 
 
