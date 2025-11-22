@@ -1,0 +1,8 @@
+"","Est","factor","trait"
+"(Intercept)",1.693350112629,"(Intercept)","Length_CWM"
+"habitatLush",0.111704116192556,"habitatLush","Length_CWM"
+"wateringwatered",-0.0418247441275011,"wateringwatered","Length_CWM"
+"fertilizationnone",-0.493431318281404,"fertilizationnone","Length_CWM"
+"habitatLush:wateringwatered",-0.040254575902523,"habitatLush:wateringwatered","Length_CWM"
+"habitatLush:fertilizationnone",0.474823579599622,"habitatLush:fertilizationnone","Length_CWM"
+"wateringwatered:fertilizationnone",0.0471231149859506,"wateringwatered:fertilizationnone","Length_CWM"

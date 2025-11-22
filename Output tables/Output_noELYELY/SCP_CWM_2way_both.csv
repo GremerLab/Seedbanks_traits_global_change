@@ -1,0 +1,8 @@
+"","numDF","denDF","F-value","p-value","factor","trait"
+"(Intercept)",1,79,66.5911565996402,4.24527080156167e-12,"(Intercept)","SCP_CWM"
+"habitat",1,79,66.1048776887222,4.85411710826611e-12,"habitat","SCP_CWM"
+"watering",1,79,18.0914276462738,5.7319679298562e-05,"watering","SCP_CWM"
+"fertilization",1,79,0.54760229799942,0.46149256380735,"fertilization","SCP_CWM"
+"habitat:watering",1,79,15.9242532185185,0.000146492668854692,"habitat:watering","SCP_CWM"
+"habitat:fertilization",1,79,0.170066252126319,0.681169906367825,"habitat:fertilization","SCP_CWM"
+"watering:fertilization",1,79,0.139397147163105,0.709881080426546,"watering:fertilization","SCP_CWM"

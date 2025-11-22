@@ -1,0 +1,8 @@
+"","numDF","denDF","F-value","p-value","factor","trait"
+"(Intercept)",1,79,4571.38947870448,0,"(Intercept)","Shape_CWM"
+"habitat",1,79,20.8719107179926,1.78471593156315e-05,"habitat","Shape_CWM"
+"watering",1,79,0.00716400294737344,0.932761381316092,"watering","Shape_CWM"
+"fertilization",1,79,9.09120764758235,0.00345281174794598,"fertilization","Shape_CWM"
+"habitat:watering",1,79,3.66303918368912,0.0592537954443135,"habitat:watering","Shape_CWM"
+"habitat:fertilization",1,79,4.83254377300527,0.0308542158042719,"habitat:fertilization","Shape_CWM"
+"watering:fertilization",1,79,1.39909916742939,0.240422039694798,"watering:fertilization","Shape_CWM"
