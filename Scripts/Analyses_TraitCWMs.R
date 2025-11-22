@@ -17,7 +17,7 @@ library(cowplot) #for arranging panels in figures
 library(multcomp) #for getting letters for post hoc contrasts on figures
 
 traitdat = read.csv("Data/Traits_PCscores_all.csv") #see Analyses_TraitPCA.R which generates this file
-#note traitdat is using the transformed trait values 
+#note traitdat uses the transformed trait values 
 summary(traitdat)
 str(traitdat)
 dim(traitdat)
