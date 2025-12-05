@@ -355,9 +355,18 @@ summary(m42)
 
 #### Trait correlation matrix, Fig S2 ####
 traits_all = traitdat %>%
-             dplyr:: select(SCT, Mass, SCP, Carbon, CN, Length, Starch, Shape, Disp, Texture, Compact, mucilage, Intensity, Perimeter , N)
+             dplyr:: select(SCT, Mass, SCP, Carbon, CN, Length, Starch, Shape, Disp, Texture, Compact, Mucilage= mucilage, Intensity, Perimeter , N)
 traitcor_all =as.data.frame(cor(traits_all))
 pmat=ggcorrplot::cor_pmat(x = traits_all)
-FigS2 = ggcorrplot::ggcorrplot(traitcor_all,type="upper",p.mat = pmat, lab=T,insig = "blank")
-FigS2
-#ggsave("Plots/FigS2_Traits_correlationmatrix.jpg", height = 10, width = 10)
+#FigS2 = ggcorrplot::ggcorrplot(traitcor_all,type="upper",p.mat = pmat, lab=T,insig = "blank")  + theme_minimal()
+#cormatplot = ggcorrplot::ggcorrplot(traitcor_all,type="lower",p.mat = pmat, lab=F, hc.order = T, sig.level = 1)
+#FigS2 = cormatplot + geom_text(aes(x = Var2, y = Var1, label = value,
+ #                         fontface = ifelse(pvalue < 0.05, "bold", "plain")),
+  #                    data = cormatplot$data, # Use the data internal to the ggcorrplot object
+   #                   size = 4) + theme_minimal()
+#figS1
+jpeg(file = "Plots/FigS1_Traits_correlationmatrix.jpg", width = 20, height = 20, units = "cm", res = 600) # Adjust width and height in pixels
+
+corrplot(cor(traits_all), method = "number", type = "lower", sig.level = 0.05,  tl.col="black", insig = "label_sig", diag=F)
+dev.off()
+#ggsave("Plots/FigS1_Traits_correlationmatrix.jpg", height = 10, width = 10)
