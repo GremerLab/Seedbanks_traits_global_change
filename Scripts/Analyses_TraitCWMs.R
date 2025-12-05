@@ -1,7 +1,7 @@
 #This script 
 #Calculates community weighted mean (CWM) traits by plot and treatment
 #tests whether CWM traits vary by treatment and habitat (harsh vs. lush serpentine)
-rm(list = ls()) # clears console
+#rm(list = ls()) # clears console
 
 #load libraries
 library(vegan)
@@ -73,6 +73,7 @@ relabsummary = all_abtraits %>%
           filter(is.na(Mass)==F & is.na(PC2)==F)  %>% 
           group_by(Plot) %>%
           summarize(sumrelab = sum(relab, na.rm=T)) #median = 90%, mean = 79.9%
+summary(relabsummary)
 sd(relabsummary$sumrelab)
 
 #save trait and abundance data 
@@ -671,17 +672,22 @@ g_alt = g + facet_grid(~habitat)
 g_alt
 
 ### Figure 2: CWM traits ###
-
+#changed order of traits to be more similar to table 1
 plot_grid(a_alt + theme(legend.position = "none"),
-          b_alt+ theme(legend.position = "none"),
           c_alt+ theme(legend.position = "none"),
-          d_alt+ theme(legend.position = "none"),
-          e_alt , 
+          b_alt+ theme(legend.position = "none"),
+          e_alt+ theme(legend.position = "none"),
+          g_alt , 
           #f_alt, 
-          g_alt,
-          ncol = 2,
+          d_alt,
+          ncol = 2, byrow= T,
           labels = c("A.", "B.", "C.", "D.", "E.", "F.", "G."), label_size=14)
 #ggsave("Plots/Fig2_CWMresponses_faceted.jpg", height = 10, width = 10)
+
+## Figure S3: start CWM ##
+f_alt
+#ggsave("Plots/FigS3_CWMresponses_starch.jpg", height = 5, width = 5)
+
 
 ## Option without habitat paneling ##
 

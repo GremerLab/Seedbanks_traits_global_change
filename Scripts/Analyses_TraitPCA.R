@@ -89,7 +89,7 @@ loadingvals = loadingvals%>%
               category == "Barrier" ~ "black", 
               category == "Chemical" ~ "gray35"))
 
-pc12 <- autoplot(trait.pca, data = all2, colour = 'origin', shape =  "Functional.group", loadings = F, size =2, scale = 0,
+pc12 <- autoplot(trait.pca, data = all2, colour = 'origin', shape =  "Functional.group", loadings = F, size =4, scale = 0,
                  x=1, y=2) + 
         scale_color_grey(start = 0.4, end = 0.7)+ 
         theme_bw()+
@@ -106,10 +106,10 @@ fig1a <- pc12 +  geom_point(x=funtype_mean$`mean(PC1)`[1],y=funtype_mean$`mean(P
   geom_point(x=funtype_mean$`mean(PC1)`[3],y=funtype_mean$`mean(PC2)`[3], size=6, shape = 0, stroke =1.5) +
   theme(legend.direction ="horizontal", legend.position = "bottom", legend.title = element_blank(), 
         text = element_text(size = 28), legend.key.width = unit(2, "line")) + 
-  guides(linetype = "none")
+  guides(linetype = "none", shape = guide_legend(override.aes = list(size = 6)), color = guide_legend(override.aes = list(size = 6)))
 fig1a 
 
-pc34 <- autoplot(trait.pca, data = all2, colour = 'origin', shape =  "Functional.group", loadings = F, size =2, scale = 0,
+pc34 <- autoplot(trait.pca, data = all2, colour = 'origin', shape =  "Functional.group", loadings = F, size =4, scale = 0,
                  x=3, y=4) + 
   scale_color_grey(start = 0.4, end = 0.7)+ 
   theme_bw()+
