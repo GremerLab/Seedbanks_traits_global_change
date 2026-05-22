@@ -12,6 +12,9 @@ library(ggplot2)
 library(cowplot)
 library(ggcorrplot)
 library(ggrepel)
+library(devtools)
+#install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis") #for pairwise comparisons from PERMANOVA
+library(pairwiseAdonis)
 ### data prep ####
 traitdat=read.csv("Data/transformed_traitdata.csv",header = T) #created in Data prep_trait_transformations.R
 
@@ -189,10 +192,37 @@ plot_grid(figSXa , figSXb  , labels = c("A.", "B."), label_size=14)
 
 
 #### test significance of differences in PC values among functional groups and origin ####
+
+### New permanova 5/13/2026 ###
+#realized the permanova was only doing one PC score at a time.  
+all_traits_dist = vegdist(traitdat_4PCA, method = "euc")
+permanova_traits = adonis2(all_traits_dist ~ origin + Functional.group, data = traitdat_info, by = "terms")
+permanova_traits #lose significance of origin
+
+#could combine origin and functional group and combine them, but taht would be testing an interaction...
+#not sure how to implement this.  
+
+pairwise_origin = pairwise.adonis2(all_traits_dist ~ origin , data = traitdat_info)
+pairwise_origin 
+
+pairwise_functionalgroup = pairwise.adonis2(all_traits_dist ~ Functional.group , data = traitdat_info)
+pairwise_functionalgroup 
+
+#run permanova on all pc scores
+permanova_pcs = adonis2(ind.coord ~ origin + Functional.group, method = "euc", data = all2, by= "terms")
+permanova_pcs
+
+
+
+
 #interaction was never significant for origin x functional group (p>0.09) in any anovas or PERManovas so dropped interaction
-permanova_pc1 = adonis2(all2$PC1 ~ origin+Functional.group, method = "euc", data = all2, by= "terms")
+permanova_pc1 = adonis2(all2$PC1 ~ origin + Functional.group, method = "euc", data = all2, by= "terms")
 permanova_pc1
 
+pairwise.adonis2(all_traits_dist ~ origin , data = traitdat_info)
+
+
+#ANOVA tests, removed from revised ms
 m1=aov(data=all2,PC1~origin+Functional.group)
 anova(m1)
 TukeyHSD(m1)
