@@ -194,35 +194,15 @@ plot_grid(figSXa , figSXb  , labels = c("A.", "B."), label_size=14)
 #### test significance of differences in PC values among functional groups and origin ####
 
 ### New permanova 5/13/2026 ###
-#realized the permanova was only doing one PC score at a time.  
-all_traits_dist = vegdist(traitdat_4PCA, method = "euc")
-permanova_traits = adonis2(all_traits_dist ~ origin + Functional.group, data = traitdat_info, by = "terms")
-permanova_traits #lose significance of origin
-
-#could combine origin and functional group and combine them, but taht would be testing an interaction...
-#not sure how to implement this.  
-
-pairwise_origin = pairwise.adonis2(all_traits_dist ~ origin , data = traitdat_info)
-pairwise_origin 
-
-pairwise_functionalgroup = pairwise.adonis2(all_traits_dist ~ Functional.group , data = traitdat_info)
-pairwise_functionalgroup 
-
+#removed permanova per reviewer comment and due to inability to get pairwise contrasts for all factors in model.  
 #run permanova on all pc scores
-permanova_pcs = adonis2(ind.coord ~ origin + Functional.group, method = "euc", data = all2, by= "terms")
-permanova_pcs
+#permanova_pcs = adonis2(ind.coord ~ origin + Functional.group, method = "euc", data = all2, by= "terms")
+#permanova_pcs
 
+#pairwise_pcs = pairwise.adonis2(ind.coord ~ origin + Functional.group, method = "euc", data = all2)
+#pairwise_pcs #Seems as though pairwise.adonis2 only gives contrasts for one factor at a time.  
 
-
-
-#interaction was never significant for origin x functional group (p>0.09) in any anovas or PERManovas so dropped interaction
-permanova_pc1 = adonis2(all2$PC1 ~ origin + Functional.group, method = "euc", data = all2, by= "terms")
-permanova_pc1
-
-pairwise.adonis2(all_traits_dist ~ origin , data = traitdat_info)
-
-
-#ANOVA tests, removed from revised ms
+#ANOVA tests, included in revised ms
 m1=aov(data=all2,PC1~origin+Functional.group)
 anova(m1)
 TukeyHSD(m1)
@@ -230,16 +210,12 @@ TukeyHSD(m1)
 #Grasses have lower PC1 than forbs, N-fixers have higher PC1 than grasses
 #native have higher PC1 than non-native 
 
-permanova_pc2 = adonis2(all2$PC2 ~ origin+Functional.group, method = "euc", data = all2, by= "terms")
-permanova_pc2
 m2=aov(data=all2,PC2~origin+Functional.group)
 anova(m2)
 TukeyHSD(m2)
 #only sig difference is for functional group
 #N fixers have higher PC2 than forbs and grasses
 
-permanova_pc3 = adonis2(all2$PC3 ~ origin+Functional.group, method = "euc", data = all2, by= "terms")
-permanova_pc3
 m3=aov(data=all2,PC3~origin+Functional.group)
 TukeyHSD(m3)
 anova(m3)
@@ -247,8 +223,6 @@ anova(m3)
 #permanova is more sig than anova, which is marginal p-0.053
 #non-native have higher PC3 than native
 
-permanova_pc4 = adonis2(all2$PC4 ~ origin+Functional.group, method = "euc", data = all2, by= "terms")
-permanova_pc4
 m4=aov(data=all2,PC4~origin+Functional.group)
 TukeyHSD(m4)
 anova(m4)
