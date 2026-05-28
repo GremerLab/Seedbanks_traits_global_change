@@ -118,23 +118,30 @@ for (i in 1:length(indtraitlist)){
   modeldat=cbind(modeldat,temp)
   names(modeldat)
   
+  ## with 4 way interaction ## # haven't fully integrated this.  see graphs below
+  m00=lme((responsevar)~ habitat*watering*fertilization*origin,random=~1|Line, data=modeldat,na.action=na.exclude,method = "REML")
+  #m0ml=lme((responsevar)~ habitat*watering*fertilization,random=~1|Line, data=modeldat,na.action=na.exclude,method = "ML")
+  
+  anova_output00 = as.data.frame(anova(m00)) %>%
+    mutate(factor = rownames(.), trait = indtraitlist[i])
+  
   ##  with 3 way interaction 
   m0=lme((responsevar)~ habitat*watering*fertilization,random=~1|Line, data=modeldat,na.action=na.exclude,method = "REML")
   #m0ml=lme((responsevar)~ habitat*watering*fertilization,random=~1|Line, data=modeldat,na.action=na.exclude,method = "ML")
   
  anova_output0 = as.data.frame(anova(m0)) %>%
                mutate(factor = rownames(.), trait = indtraitlist[i])
- anova_output0_table = anova_output0 %>%
-          dplyr:: select(-factor) %>%
-          kable(
-          digits = 3,
-          caption = "ANOVA for Fixed Effects",
-          col.names = c("Term", "Sum of Squares", "Mean Squares", "Num DF", "Den DF", "F-value", "P-value")
-        ) %>%
-        kable_styling(
-          bootstrap_options = c("striped", "hover", "condensed"),
-          full_width = FALSE
-        )
+ #anova_output0_table = anova_output0 %>%
+  #        dplyr:: select(-factor) %>%
+   #       kable(
+    #      digits = 3,
+     #     caption = "ANOVA for Fixed Effects",
+      #    col.names = c("Term", "Sum of Squares", "Mean Squares", "Num DF", "Den DF", "F-value", "P-value")
+       # ) %>%
+        #kable_styling(
+         # bootstrap_options = c("striped", "hover", "condensed"),
+          #full_width = FALSE
+      #  )
  
    model_output0 = as.data.frame(m0$coefficients$fixed) %>%
      mutate(factor = rownames(.), trait = indtraitlist[i]) %>%
@@ -147,17 +154,17 @@ for (i in 1:length(indtraitlist)){
     anova_output1 = as.data.frame(anova(m1)) %>%
       mutate(factor = rownames(.), trait = indtraitlist[i])
     
-    anova_output1_table = anova_output1%>%
-      dplyr::select(-factor) %>%
-          kable(
-          digits = 3,
-          caption = "ANOVA for Fixed Effects",
-          col.names = c("Term", "Sum of Squares", "Mean Squares", "Num DF", "Den DF", "F-value", "P-value")
-        ) %>%
-        kable_styling(
-          bootstrap_options = c("striped", "hover", "condensed"),
-          full_width = FALSE
-        )
+    #anova_output1_table = anova_output1%>%
+     # dplyr::select(-factor) %>%
+      #    kable(
+       #   digits = 3,
+        #  caption = "ANOVA for Fixed Effects",
+         # col.names = c("Term", "Sum of Squares", "Mean Squares", "Num DF", "Den DF", "F-value", "P-value")
+        #) %>%
+        #kable_styling(
+         # bootstrap_options = c("striped", "hover", "condensed"),
+        #  full_width = FALSE
+        #)
     
     model_output1 = as.data.frame(m1$coefficients$fixed) %>%
       mutate(factor = rownames(.), trait = indtraitlist[i]) %>%
@@ -168,17 +175,17 @@ for (i in 1:length(indtraitlist)){
             anova_output2 = as.data.frame(anova(m2))%>%
               mutate(factor = rownames(.), trait = indtraitlist[i])
             
-            anova_output2_table = anova_output2 %>%
-              dplyr::select(-factor) %>%
-              kable(
-                digits = 3,
-                caption = "ANOVA for Fixed Effects",
-                col.names = c("Term", "Sum of Squares", "Mean Squares", "Num DF", "Den DF", "F-value", "P-value")
-              ) %>%
-              kable_styling(
-                bootstrap_options = c("striped", "hover", "condensed"),
-                full_width = FALSE
-              )
+         #   anova_output2_table = anova_output2 %>%
+         #     dplyr::select(-factor) %>%
+          #    kable(
+           #     digits = 3,
+            #    caption = "ANOVA for Fixed Effects",
+             #   col.names = c("Term", "Sum of Squares", "Mean Squares", "Num DF", "Den DF", "F-value", "P-value")
+        #      ) %>%
+         #     kable_styling(
+          #      bootstrap_options = c("striped", "hover", "condensed"),
+           #     full_width = FALSE
+            #  )
             
             model_output2 = as.data.frame(m2$coefficients$fixed) %>%
               mutate(factor = rownames(.), trait = indtraitlist[i]) %>%
@@ -189,20 +196,21 @@ for (i in 1:length(indtraitlist)){
             mod_est_ind[[i]]= model_output2
             write.csv(anova_output2, file = paste("Output tables/",response,"_main_both.csv",sep="")) 
             write.csv(model_output2, file = paste("Output tables/",response,"_main_both_est.csv",sep="")) 
-            kableExtra::save_kable(anova_output2_table, file = paste("Output tables/",response,"_main_both.html",sep=""))      
+           # kableExtra::save_kable(anova_output2_table, file = paste("Output tables/",response,"_main_both.html",sep=""))      
             } else {
             #output results for 2 ways if they are significant 
               output_ind[[i]]= anova_output1
               mod_est_ind[[i]]= model_output1
                write.csv(anova_output1, file = paste("Output tables/",response,"_2way_both.csv",sep=""))
                write.csv(model_output1, file = paste("Output tables/",response,"_2way_both_est.csv",sep="")) 
-            kableExtra::save_kable(anova_output1_table, file = paste("Output tables/",response,"_2way_both.html",sep="")) }     
+          #  kableExtra::save_kable(anova_output1_table, file = paste("Output tables/",response,"_2way_both.html",sep="")) 
+               }     
   } else { #output results for 3 way if it is significant 
     output_ind[[i]]= anova_output0
     mod_est_ind[[i]]= model_output0
     write.csv(anova_output0, file = paste("Output tables/",response,"_3way_both.csv",sep=""))
     write.csv(model_output0, file = paste("Output tables/",response,"_3way_both_est.csv",sep="")) 
-    kableExtra::save_kable(anova_output0_table, file = paste("Output tables/",response,"_3way_both.html",sep=""))
+   # kableExtra::save_kable(anova_output0_table, file = paste("Output tables/",response,"_3way_both.html",sep=""))
   }
    
  }
@@ -550,7 +558,7 @@ cld_Shape = as.data.frame(cld(Shape_emm,
 
 
 #### Figures ####
-SCTplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=SCT_CWM, fill = habitat))+
+SCTplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=SCT_CWM, fill = as.factor(origin)))+
   geom_boxplot(position = position_dodge(.9))+
   labs(title="",subtitle = "",y="CWM SCT", x="")+
   scale_fill_grey(start=0.9, end=0.4) +
@@ -560,7 +568,7 @@ SCTplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=SCT_CWM, fill = habitat)
   theme(panel.spacing = unit(0, units = "cm"), 
         legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
         axis.title.y = element_text(size = 14))  +
-         labs(fill = "Habitat")
+         labs(fill = "Origin")
 
 a= SCTplot + geom_text(data = cld_SCT, aes( x = WFtreatment_order, y = 2.1, group = habitat, label = SCT_letters ),
                     position = position_dodge(width = 0.9)) 

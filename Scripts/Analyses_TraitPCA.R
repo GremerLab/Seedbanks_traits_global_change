@@ -191,6 +191,50 @@ plot_grid(figSXa , figSXb  , labels = c("A.", "B."), label_size=14)
 #ggsave("Plots/Fig1alt_TraitPCA_withconvexhulls.jpg", height = 10, width = 20)
 
 
+####Figure SX take 2: Trait PCA with convex hulls for origin ####
+
+pca_hull_origin12 <- 
+  all2 %>% 
+  group_by(origin) %>% 
+  slice(chull(PC1, PC2)) 
+
+
+figSXa2 <- 
+  fig1a +
+  geom_polygon(data = pca_hull_origin12,
+               aes(fill = origin,
+                   color = origin),
+               alpha = 0.3,
+               show.legend = T) +
+  scale_fill_grey(start = 1, end = 0.2) +
+  guides( color = "none") #, shape = guide_legend(override.aes = list(fill = NA))
+
+figSXa2 
+
+#add convex hulls for origin
+pca_hull_origin34 <- 
+  all2 %>% 
+  group_by(origin) %>% 
+  slice(chull(PC3, PC4))
+  
+
+figSXb2 <- fig1b +
+  geom_polygon(data = pca_hull_origin34,
+               aes(fill = origin,
+                   color = origin),
+               alpha = 0.3,
+               show.legend = T) +
+  scale_fill_grey(start = 1, end = 0.2) +
+  guides( color = "none",fill = "none", linetype = guide_legend(override.aes = list(fill = NA)))  #
+
+
+figSXb2 
+
+####Fig 1alt: Trait PCA with convex hulls for origin ####
+plot_grid(figSXa2 , figSXb2  , labels = c("A.", "B."), label_size=14)
+#ggsave("Plots/Fig1alt_TraitPCA_withconvexhulls_origin.jpg", height = 10, width = 20)
+
+
 #### test significance of differences in PC values among functional groups and origin ####
 
 ### New permanova 5/13/2026 ###
