@@ -26,9 +26,10 @@ listsptraitdat = as.list(sptraitdat)
 
 spabundat = abundat%>%
             group_by(species) %>% #if add treatment, list is very long, and those data are in Eskelinen et al. 2021
-            summarize(minabund = min(rawcount, na.rm=T), maxabund = max(rawcount, na.rm=T)) %>%
+            summarize(minabund = min(rawcount,  na.rm=T), maxabund = max(rawcount, na.rm=T),
+                      meanabund = mean(rawcount, na.rm=T)) %>%
             mutate(Abundance_range = paste(minabund, maxabund, sep = "-")) %>%
-            select(species, Abundance_range)
+            dplyr::select(species, Abundance_range, meanabund)
             
 dim(spabundat) #108 species in seedbank 
 summary(spabundat)
@@ -44,7 +45,7 @@ summary(spdat) #61 species in seed bank data that have traits
 onlytraits = tibble(Species = setdiff(sptraitdat$species, spabundat$species)) %>% #6 species that we have traits but weren't in seedbank
              mutate(InSeedbank = as.factor("No")) %>%
              mutate(TraitData = as.factor("Yes")) %>%
-             mutate(Abundance_range = NA)
+             mutate(Abundance_range = NA, meanabund = NA)
 
 allsbsp = rbind.data.frame(spdat, onlytraits) %>%
           rename(Abbreviation = Species)
@@ -53,9 +54,11 @@ summary(allsbsp)
 #merge with full names and families
 allsbsp2 = left_join(allsbsp, spmeta, by = "Abbreviation") %>%
            dplyr::select(Fullname, Abbreviation, Family = family, "Life History" = annual, Functional.group, Origin = origin,
-                         Abundance_range, InSeedbank, TraitData)
+                         meanabund, InSeedbank, TraitData) %>% #keep meanabund, range makes table too big
+           dplyr::filter(Fullname != "NA") %>%
+           arrange(Fullname)
 
 
 summary(allsbsp2)
 dim(allsbsp2) 
-#write.csv(allsbsp2, "Data/Species list_with seed bank counts.csv")
+#write.csv(allsbsp2, "Data/Species list_with seed bank mean abund.csv")
