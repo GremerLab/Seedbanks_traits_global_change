@@ -77,6 +77,11 @@ library(ggfortify)
 funtype_mean = all2 %>%
                group_by(Functional.group)%>%
                dplyr::summarise(mean(PC1),mean(PC2),mean(PC3),mean(PC4),n())
+
+origin_mean = all2 %>%
+  group_by(origin)%>%
+  dplyr::summarise(mean(PC1),mean(PC2),mean(PC3),mean(PC4),n())
+
 #add trait category to PCA output
 loadingvals = loadingvals%>%
               mutate_at(vars(contains('PC')), list(as.numeric)) %>%
@@ -107,7 +112,10 @@ pc12
 pc12_color = pc12 + scale_color_manual(values = c("#D55E00", "#009E73", "#90529C"))
 pc12_color
 #add means for functional groups
-fig1a <- pc12 + # geom_point(x=funtype_mean$`mean(PC1)`[1],y=funtype_mean$`mean(PC2)`[1], size=6, shape = 1, stroke =1.5)+
+fig1a <- pc12 + 
+           geom_point(x=origin_mean$`mean(PC1)`[1],y=origin_mean$`mean(PC2)`[1], size=8, shape = 1, stroke =2)+
+          geom_point(x=origin_mean$`mean(PC1)`[2],y=origin_mean$`mean(PC2)`[2], size=8, shape = 2, stroke =2) + #stroke controls outline width
+  # geom_point(x=funtype_mean$`mean(PC1)`[1],y=funtype_mean$`mean(PC2)`[1], size=6, shape = 1, stroke =1.5)+
   #geom_point(x=funtype_mean$`mean(PC1)`[2],y=funtype_mean$`mean(PC2)`[2], size=6, shape = 2, stroke =1.5) + #stroke controls outline width
   #geom_point(x=funtype_mean$`mean(PC1)`[3],y=funtype_mean$`mean(PC2)`[3], size=6, shape = 0, stroke =1.5) +
   theme(legend.direction ="horizontal", legend.position = "bottom", legend.title = element_blank(), 
@@ -115,13 +123,16 @@ fig1a <- pc12 + # geom_point(x=funtype_mean$`mean(PC1)`[1],y=funtype_mean$`mean(
   guides(linetype = "none", shape = guide_legend(override.aes = list(size = 6)), color = guide_legend(override.aes = list(size = 6, shape = 15)))
 fig1a 
 
-fig1a_color <- pc12_color +  #geom_point(x=funtype_mean$`mean(PC1)`[1],y=funtype_mean$`mean(PC2)`[1], size=6, shape = 1, stroke =1.5)+
- # geom_point(x=funtype_mean$`mean(PC1)`[2],y=funtype_mean$`mean(PC2)`[2], size=6, shape = 2, stroke =2) + #stroke controls outline width
+fig1a_color_mean <- pc12_color +  
+  geom_point(x=origin_mean$`mean(PC1)`[1],y=origin_mean$`mean(PC2)`[1], size=8, shape = 1, stroke =1.5)+
+  geom_point(x=origin_mean$`mean(PC1)`[2],y=origin_mean$`mean(PC2)`[2], size=8, shape = 2, stroke =1.5) +
+  #geom_point(x=funtype_mean$`mean(PC1)`[1],y=funtype_mean$`mean(PC2)`[1], size=6, shape = 1, stroke =1.5)+
+ # geom_point(x=funtype_mean$`mean(PC1)`[2],y=funtype_mean$`mean(PC2)`[2], size=6, shape = 2, stroke =1) + #stroke controls outline width
  # geom_point(x=funtype_mean$`mean(PC1)`[3],y=funtype_mean$`mean(PC2)`[3], size=6, shape = 15, stroke =1.5) +
   theme(legend.direction ="horizontal", legend.position = "bottom", legend.title = element_blank(), 
         text = element_text(size = 24), legend.key.width = unit(2, "line")) + 
   guides(linetype = "none", shape = guide_legend(override.aes = list(size = 6)), color = guide_legend(override.aes = list(size = 6, shape = 15)))
-fig1a_color 
+fig1a_color_mean 
 
 pc34 <- autoplot(trait.pca, data = all2, colour = 'Functional.group', shape =  "origin", loadings = F, size =5, scale = 0,
                  x=3, y=4) + 
@@ -136,8 +147,11 @@ pc34
 
 pc34_color = pc34 + scale_color_manual(values = c("#D55E00", "#009E73", "#90529C"))
 pc34_color
-#add means for functional groups
-fig1b <- pc34 + # geom_point(x=funtype_mean$`mean(PC3)`[1],y=funtype_mean$`mean(PC4)`[1], size=6, shape = 1, stroke =1.5)+
+#add means for functional groups or origin
+fig1b <- pc34 + 
+  geom_point(x=origin_mean$`mean(PC3)`[1],y=origin_mean$`mean(PC4)`[1], size=8, shape = 1, stroke =2)+
+  geom_point(x=origin_mean$`mean(PC3)`[2],y=origin_mean$`mean(PC4)`[2], size=8, shape = 2, stroke =2) +
+  # geom_point(x=funtype_mean$`mean(PC3)`[1],y=funtype_mean$`mean(PC4)`[1], size=6, shape = 1, stroke =1.5)+
   #geom_point(x=funtype_mean$`mean(PC3)`[2],y=funtype_mean$`mean(PC4)`[2], size=6, shape = 2, stroke =1.5) +
   #geom_point(x=funtype_mean$`mean(PC3)`[3],y=funtype_mean$`mean(PC4)`[3], size=6, shape = 0, stroke =1.5) +
   theme(legend.direction = "horizontal", legend.position = "bottom", legend.title = element_blank(), 
@@ -145,13 +159,16 @@ fig1b <- pc34 + # geom_point(x=funtype_mean$`mean(PC3)`[1],y=funtype_mean$`mean(
   guides(shape = "none", color = "none")
 fig1b 
 
-fig1b_color <- pc34_color + # geom_point(x=funtype_mean$`mean(PC3)`[1],y=funtype_mean$`mean(PC4)`[1], size=6, shape = 1, stroke =1.5)+
+fig1b_color_mean <- pc34_color + 
+                geom_point(x=origin_mean$`mean(PC3)`[1],y=origin_mean$`mean(PC4)`[1], size=8, shape = 1, stroke =1.5)+
+                geom_point(x=origin_mean$`mean(PC3)`[2],y=origin_mean$`mean(PC4)`[2], size=8, shape = 2, stroke =1.5) +
+  # geom_point(x=funtype_mean$`mean(PC3)`[1],y=funtype_mean$`mean(PC4)`[1], size=6, shape = 1, stroke =1.5)+
   #geom_point(x=funtype_mean$`mean(PC3)`[2],y=funtype_mean$`mean(PC4)`[2], size=6, shape = 2, stroke =1.5) +
   #geom_point(x=funtype_mean$`mean(PC3)`[3],y=funtype_mean$`mean(PC4)`[3], size=6, shape = 0, stroke =1.5) +
   theme(legend.direction = "horizontal", legend.position = "bottom", legend.title = element_blank(), 
         text = element_text(size = 24),  legend.key.width = unit(2, "line")) + 
   guides(shape = "none", color = "none")
-fig1b_color
+fig1b_color_mean 
 
 ####Figure 1: Trait PCA ####
 plot_grid(fig1a , fig1b  , labels = c("A.", "B."), label_size=18)
@@ -160,10 +177,10 @@ plot_grid(fig1a , fig1b  , labels = c("A.", "B."), label_size=18)
 #ggsave("Plots/Fig1_TraitPCA.pdf", height = 8, width = 16) #note, some post-processing was done to fix vector labels, size of points in legend, etc
 
 
-plot_grid(fig1a_color , fig1b_color  , labels = c("A.", "B."), label_size=18)
+plot_grid(fig1a_color_mean  , fig1b_color_mean   , labels = c("A.", "B."), label_size=18)
 
-#ggsave("Plots/Fig1_TraitPCA_color.jpg", height = 8, width = 16)
-#ggsave("Plots/Fig1_TraitPCA_color.pdf", height = 8, width = 16) #note, some post-processing was done to fix vector labels, size of points in legend, etc
+#ggsave("Plots/Fig1_TraitPCA_color_originmean.jpg", height = 8, width = 16)
+#ggsave("Plots/Fig1_TraitPCA_colorr_originmean.pdf", height = 8, width = 16) #note, some post-processing was done to fix vector labels, size of points in legend, etc
 
 ####Figure SX: Trait PCA with convex hulls ####
 #add convex hulls for forb, grass, Nfixer
@@ -207,7 +224,7 @@ figSXb <- fig1b +
                    color = Functional.group),
                alpha = 0.3,
                show.legend = T) +
-  scale_fill_grey(start = 1, end = 0.2) +
+   scale_fill_grey(start = 1, end = 0.2)+
   guides( color = "none",fill = "none", linetype = guide_legend(override.aes = list(fill = NA)))  #
   
 
@@ -217,49 +234,6 @@ figSXb
 plot_grid(figSXa , figSXb  , labels = c("A.", "B."), label_size=14)
 #ggsave("Plots/Fig1alt_TraitPCA_withconvexhulls.jpg", height = 10, width = 20)
 
-
-####Figure SX take 2: Trait PCA with convex hulls for origin ####
-
-pca_hull_origin12 <- 
-  all2 %>% 
-  group_by(origin) %>% 
-  slice(chull(PC1, PC2)) 
-
-
-figSXa2 <- 
-  fig1a +
-  geom_polygon(data = pca_hull_origin12,
-               aes(fill = origin,
-                   color = origin),
-               alpha = 0.3,
-               show.legend = T) +
-  scale_fill_grey(start = 1, end = 0.2) +
-  guides( color = "none") #, shape = guide_legend(override.aes = list(fill = NA))
-
-figSXa2 
-
-#add convex hulls for origin
-pca_hull_origin34 <- 
-  all2 %>% 
-  group_by(origin) %>% 
-  slice(chull(PC3, PC4))
-  
-
-figSXb2 <- fig1b +
-  geom_polygon(data = pca_hull_origin34,
-               aes(fill = origin,
-                   color = origin),
-               alpha = 0.3,
-               show.legend = T) +
-  scale_fill_grey(start = 1, end = 0.2) +
-  guides( color = "none",fill = "none", linetype = guide_legend(override.aes = list(fill = NA)))  #
-
-
-figSXb2 
-
-####Fig 1alt: Trait PCA with convex hulls for origin ####
-plot_grid(figSXa2 , figSXb2  , labels = c("A.", "B."), label_size=14)
-#ggsave("Plots/Fig1alt_TraitPCA_withconvexhulls_origin.jpg", height = 10, width = 20)
 
 
 #### test significance of differences in PC values among functional groups and origin ####
