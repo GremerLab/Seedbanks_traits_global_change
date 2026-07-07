@@ -171,13 +171,21 @@ fig1b_color_mean <- pc34_color +
 fig1b_color_mean 
 
 ####Figure 1: Trait PCA ####
-plot_grid(fig1a , fig1b  , labels = c("A.", "B."), label_size=18)
+plot_grid(fig1a +
+            theme(plot.margin = unit(c(1, 1, 0.5, 0.5), "cm")) + labs(title = "Figure 1") + theme(plot.title = element_text(vjust = 3, hjust = -.125)), 
+          fig1b + 
+            theme(plot.margin = unit(c(1, 1, 0.5, 0.5), "cm"))+ labs(title = " ")+ theme(plot.title = element_text(vjust = 3, hjust = -.15)),
+          labels = c(" \n A.", " \n B."), label_size=18)
 
 #ggsave("Plots/Fig1_TraitPCA.jpg", height = 8, width = 16)
 #ggsave("Plots/Fig1_TraitPCA.pdf", height = 8, width = 16) #note, some post-processing was done to fix vector labels, size of points in legend, etc
 
 
-plot_grid(fig1a_color_mean  , fig1b_color_mean   , labels = c("A.", "B."), label_size=18)
+plot_grid(fig1a_color_mean + 
+            theme(plot.margin = unit(c(1, 1, 0.5, 0.5), "cm")) + labs(title = "Figure 1") + theme(plot.title = element_text(vjust = 3, hjust = -.125)), 
+           fig1b_color_mean   + 
+            theme(plot.margin = unit(c(1, 1, 0.5, 0.5), "cm"))+ labs(title = " ")+ theme(plot.title = element_text(vjust = 3, hjust = -.15)), 
+          labels = c(" \n A.", " \n B."), label_size=18)
 
 #ggsave("Plots/Fig1_TraitPCA_color_originmean.jpg", height = 8, width = 16)
 #ggsave("Plots/Fig1_TraitPCA_colorr_originmean.pdf", height = 8, width = 16) #note, some post-processing was done to fix vector labels, size of points in legend, etc

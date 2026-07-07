@@ -385,10 +385,14 @@ d_harshorigin
 
 ## panel figure ##
 #### Fig. 3: CWM traits in harsh soils by origin ####
-plot_grid(a_harshorigin + theme(legend.position = "none"),
-          b_harshorigin+ theme(legend.position = "none"),
+plot_grid(a_harshorigin + theme(legend.position = "none")+
+            theme(plot.margin = unit(c(1, 1, 0.5, 0.5), "cm")) + 
+            labs(title = "Figure 3", size = 14) + theme(plot.title = element_text(vjust = 8, hjust = -.05)),
+          b_harshorigin+ theme(legend.position = "none")+
+            theme(plot.margin = unit(c(1, 1, 0.5, 0.5), "cm")) + 
+            labs(title = "    ") + theme(plot.title = element_text(vjust = 8, hjust = -.05)),
           c_harshorigin + theme(legend.position = "none"),
           d_harshorigin + theme(legend.position = "none"),
           ncol = 2, byrow= T,
-          labels = c("A.", "B.", "C.", "D."), label_size=14)
+          labels = c("A.", "B.", "C.", "D."), label_size=14, vjust = 5)
 #ggsave("Plots/Fig3_CWMresponses_harsh_origin_faceted.jpg", height = 10, width = 10)

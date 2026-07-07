@@ -673,15 +673,19 @@ g_alt
 
 ### Figure 2: CWM traits ###
 #changed order of traits to be more similar to table 1
-plot_grid(a_alt + theme(legend.position = "none"),
-          c_alt+ theme(legend.position = "none"),
+plot_grid(a_alt + theme(legend.position = "none") +
+            theme(plot.margin = unit(c(1, 1, 0.5, 0.5), "cm")) + 
+            labs(title = "Figure 2") + theme(plot.title = element_text(vjust = 5, hjust = -.05)),
+          c_alt+ theme(legend.position = "none")+
+            theme(plot.margin = unit(c(1, 1, 0.5, 0.5), "cm")) + 
+            labs(title = "    ") + theme(plot.title = element_text(vjust = 5, hjust = -.05)),
           b_alt+ theme(legend.position = "none"),
           e_alt+ theme(legend.position = "none"),
-          g_alt , 
+          g_alt + theme(legend.position = "none"), 
           #f_alt, 
-          d_alt,
+          d_alt+ theme(legend.position = "none"),
           ncol = 2, byrow= T,
-          labels = c("A.", "B.", "C.", "D.", "E.", "F.", "G."), label_size=14)
+          labels = c("A.", "B.", "C.", "D.", "E.", "F.", "G."), label_size=14, vjust = 5)
 #ggsave("Plots/Fig2_CWMresponses_faceted.jpg", height = 10, width = 10)
 
 ## Figure S3: start CWM ##
