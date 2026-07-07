@@ -3,7 +3,7 @@
 #tests for differences in seed functional among functional groups and between origins (native vs. non-native)
 #generates the trait PCA figures and associated supplemental figures
 
-rm(list = ls()) # clears everything
+#rm(list = ls()) # clears everything
 library(vegan)
 library(tidyverse)
 library(ggbiplot)
@@ -13,6 +13,7 @@ library(cowplot)
 library(ggcorrplot)
 library(ggrepel)
 library(devtools)
+library(multcomp)
 #install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis") #for pairwise comparisons from PERMANOVA
 library(pairwiseAdonis)
 ### data prep ####
@@ -64,7 +65,8 @@ loadingvals=as.data.frame(loadingvals)
 all2= speciesvals %>% #joining species PCA scores with the main trait dataframe
   inner_join(traitdat)%>%
   mutate_at(vars(contains('PC')), list(as.numeric)) %>%
-  dplyr:: select(-X)
+  dplyr:: select(-X) %>% 
+  mutate(Functional.group = as.factor(Functional.group), origin = as.factor(origin))
 #something happened with dispcat, but we don't use it here
 
 names(all2)
@@ -258,29 +260,63 @@ plot_grid(figSXa , figSXb  , labels = c("A.", "B."), label_size=14)
 #ANOVA tests, included in revised ms
 m1=aov(data=all2,PC1~origin+Functional.group)
 anova(m1)
-TukeyHSD(m1)
-#permanova and anova are concordant, and PC1 varies by functional group and origin 
+m1_tukey = TukeyHSD(m1)
+m1_tukey
+#calculate q-statistic
+m1_tukey_origin <- as.data.frame(m1_tukey[[1]])
+m1_tukey_origin$q_statistic <- m1_tukey_origin$diff / (m1_tukey_origin$lwr / qt(0.975, df.residual(m1)))
+m1_tukey_origin
+
+m1_tukey_Functional.group <- as.data.frame(m1_tukey[[2]])
+m1_tukey_Functional.group$q_statistic <- m1_tukey_Functional.group$diff / (m1_tukey_Functional.group$lwr / qt(0.975, df.residual(m1)))
+m1_tukey_Functional.group
 #Grasses have lower PC1 than forbs, N-fixers have higher PC1 than grasses
 #native have higher PC1 than non-native 
 
 m2=aov(data=all2,PC2~origin+Functional.group)
 anova(m2)
-TukeyHSD(m2)
+m2_tukey= TukeyHSD(m2)
+
+#calculate q-statistic
+m2_tukey_origin <- as.data.frame(m2_tukey[[1]])
+m2_tukey_origin$q_statistic <- m2_tukey_origin$diff / (m2_tukey_origin$lwr / qt(0.975, df.residual(m2)))
+m2_tukey_origin
+
+m2_tukey_Functional.group <- as.data.frame(m2_tukey[[2]])
+m2_tukey_Functional.group$q_statistic <- m2_tukey_Functional.group$diff / (m2_tukey_Functional.group$lwr / qt(0.975, df.residual(m2)))
+m2_tukey_Functional.group
 #only sig difference is for functional group
 #N fixers have higher PC2 than forbs and grasses
 
 m3=aov(data=all2,PC3~origin+Functional.group)
-TukeyHSD(m3)
 anova(m3)
-#origin is sig in permanova
-#permanova is more sig than anova, which is marginal p-0.053
-#non-native have higher PC3 than native
+m3_tukey= TukeyHSD(m3)
+
+#calculate q-statistic
+m3_tukey_origin <- as.data.frame(m3_tukey[[1]])
+m3_tukey_origin$q_statistic <- m3_tukey_origin$diff / (m3_tukey_origin$lwr / qt(0.975, df.residual(m3)))
+m3_tukey_origin
+#
+
+m3_tukey_Functional.group <- as.data.frame(m3_tukey[[2]])
+m3_tukey_Functional.group$q_statistic <- m3_tukey_Functional.group$diff / (m3_tukey_Functional.group$lwr / qt(0.975, df.residual(m3)))
+m3_tukey_Functional.group
+
 
 m4=aov(data=all2,PC4~origin+Functional.group)
-TukeyHSD(m4)
 anova(m4)
-#functional group is sig, same in both permanova and anova, but contrasts aren't sig.  
-#n-fixers have lower PC4 than natives (p=0.07)
+m4_tukey= TukeyHSD(m4)
+
+#calculate q-statistic
+m4_tukey_origin <- as.data.frame(m4_tukey[[1]])
+m4_tukey_origin$q_statistic <- m4_tukey_origin$diff / (m4_tukey_origin$lwr / qt(0.975, df.residual(m4)))
+m4_tukey_origin
+
+m4_tukey_Functional.group <- as.data.frame(m4_tukey[[2]])
+m4_tukey_Functional.group$q_statistic <- m4_tukey_Functional.group$diff / (m4_tukey_Functional.group$lwr / qt(0.975, df.residual(m4)))
+m4_tukey_Functional.group
+#functional group is sig, but contrasts aren't sig.  
+#n-fixers have lower PC4 than natives (p=0.07, q = 0.968)
 
 
 #### PCA without the 7 species missing texture ####
