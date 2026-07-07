@@ -646,8 +646,9 @@ Shapeplot = ggplot(data = subset(cwmsummaries_long, trait == "Shape"),aes(x=WFtr
   theme(legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
         axis.title.y = element_text(size = 14))
 Shapeplot  
-### Figure 2: CWM traits ###
-#changed order of traits to be more similar to table 1
+
+#### Figure 2: CWM individual traits ####
+#changed order of traits to align with table 1
 plot_grid(SCTplot + theme(legend.position = "none") +
             theme(plot.margin = unit(c(1, 1, 0.5, 0.5), "cm")) + 
             labs(title = "Figure 2") + theme(plot.title = element_text(vjust = 5, hjust = -.05))+
@@ -672,26 +673,22 @@ plot_grid(SCTplot + theme(legend.position = "none") +
 #ggsave("Plots/Fig2_CWMresponses_scatterplot.jpg", height = 10, width = 10)
 #ggsave("Plots/Fig2_CWMresponses_scatterplot.pdf", height = 10, width = 10)
 
-#start here
-
-## Figure S3: start CWM ##
-f_alt
-#ggsave("Plots/FigS3_CWMresponses_starch.jpg", height = 5, width = 5)
 
 
-## Option without habitat paneling ##
+#### Figure S3: starch CWM ####
+#Starch
+Starchplot = ggplot(data = subset(cwmsummaries_long, trait == "Starch"),aes(x=WFtreatment_order, y= mean, group = habitat, shape = habitat))+
+  geom_point( size = 4)+
+  scale_shape_manual(values = c(15,5)) +
+  geom_errorbar(data = subset(cwmsummaries_long, trait == "Starch"), aes(ymin = mean - se, ymax = mean + se), width = 0.2) + 
+  theme_bw() + 
+  labs(x = "Treatment", y = "CWM Starch", shape = "Habitat") + 
+  theme(legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14))
+Starchplot  
+#ggsave("Plots/FigS3_CWMresponses_starch_scatterplot.jpg", height = 5, width = 5)
+#ggsave("Plots/FigS3_CWMresponses_starch_scatterplot.pdf", height = 5, width = 5)
 
-plot_grid(a + theme(legend.position = "none"),
-          b+ theme(legend.position = "none"),
-          c+ theme(legend.position = "none"),
-          d+ theme(legend.position = "none"),
-          e, #+ theme(legend.position = "none")
-          #  f, 
-          g,
-          ncol = 2, nrow = 3,
-          labels = c("A.", "B.", "C.", "D.", "E.", "F.", "G."), label_size=14)
-
-#ggsave("Plots/Fig2alt_CWMresponses.jpg", height = 10, width = 15)
 
 #### PC CWM contrasts and figures ####
 ## PC1 ##
@@ -716,23 +713,17 @@ cld_PC1 = as.data.frame(cld(PC1_emm,
   ))) %>%
   mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","W", "N", "WN")))
 
-PC1plot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=PC1_CWM, fill = habitat))+
-  geom_boxplot(position = position_dodge(.9))+
-  labs(title="",subtitle = "",y="CWM PC1", x="")+
-  scale_fill_grey(start=0.9, end=0.4) +
-  scale_color_grey(start=0.4, end=0.7) +
-  #facet_grid(rows = vars(type), cols=vars(habitat),switch="y",scales = "free")+
-  theme_bw()+
-  theme(panel.spacing = unit(0, units = "cm"), 
-        legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
-        axis.title.y = element_text(size = 14))  +
-  labs(fill = "Habitat")
+#PC1
+PC1plot = ggplot(data = subset(cwmsummaries_long, trait == "PC1"),aes(x=WFtreatment_order, y= mean, group = habitat, shape = habitat))+
+  geom_point( size = 4)+
+  scale_shape_manual(values = c(15,5)) +
+  geom_errorbar(data = subset(cwmsummaries_long, trait == "PC1"), aes(ymin = mean - se, ymax = mean + se), width = 0.2) + 
+  theme_bw() + 
+  labs(x = "Treatment", y = "CWM PC1", shape = "Habitat") + 
+  theme(legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14))
+PC1plot  
 
-pc1a= PC1plot + geom_text(data = cld_PC1, aes( x = WFtreatment_order, y = 2.1, group = habitat, label = PC1_letters ),
-                       position = position_dodge(width = 0.9)) 
-pc1a
-pc1a_alt = pc1a + facet_grid(~habitat)
-pc1a_alt
 
 ## PC2 ##
 #Only main effects are sig #
@@ -755,25 +746,16 @@ cld_PC2 = as.data.frame(cld(PC2_emm,
   ))) %>%
   mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","W", "N", "WN")))
 
-PC2plot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=PC2_CWM, fill = habitat))+
-  geom_boxplot(position = position_dodge(.9))+
-  labs(title="",subtitle = "",y="CWM PC2", x="")+
-  scale_fill_grey(start=0.9, end=0.4) +
-  scale_color_grey(start=0.4, end=0.7) +
-  #facet_grid(rows = vars(type), cols=vars(habitat),switch="y",scales = "free")+
-  theme_bw()+
-  theme(panel.spacing = unit(0, units = "cm"), 
-        legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
-        axis.title.y = element_text(size = 14))  +
-  labs(fill = "Habitat")
-
-PC2plot
-
-pc2a= PC2plot + geom_text(data = cld_PC2, aes( x = WFtreatment_order, y = 2.1, group = habitat, label = PC2_letters ),
-                          position = position_dodge(width = 0.9)) 
-pc2a
-pc2a_alt = pc2a + facet_grid(~habitat)
-pc2a_alt
+#PC2
+PC2plot = ggplot(data = subset(cwmsummaries_long, trait == "PC2"),aes(x=WFtreatment_order, y= mean, group = habitat, shape = habitat))+
+  geom_point( size = 4)+
+  scale_shape_manual(values = c(15,5)) +
+  geom_errorbar(data = subset(cwmsummaries_long, trait == "PC2"), aes(ymin = mean - se, ymax = mean + se), width = 0.2) + 
+  theme_bw() + 
+  labs(x = "Treatment", y = "CWM PC2", shape = "Habitat") + 
+  theme(legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14))
+PC2plot 
 
 ## PC3 ##
 #2 way is sig#
@@ -797,23 +779,16 @@ cld_PC3 = as.data.frame(cld(PC3_emm,
   ))) %>%
   mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","W", "N", "WN")))
 
-PC3plot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=PC3_CWM, fill = habitat))+
-  geom_boxplot(position = position_dodge(.9))+
-  labs(title="",subtitle = "",y="CWM PC3", x="")+
-  scale_fill_grey(start=0.9, end=0.4) +
-  scale_color_grey(start=0.4, end=0.7) +
-  #facet_grid(rows = vars(type), cols=vars(habitat),switch="y",scales = "free")+
-  theme_bw()+
-  theme(panel.spacing = unit(0, units = "cm"), 
-        legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
-        axis.title.y = element_text(size = 14))  +
-  labs(fill = "Habitat")
-
-pc3a= PC3plot + geom_text(data = cld_PC3, aes( x = WFtreatment_order, y = 2.1, group = habitat, label = PC3_letters ),
-                          position = position_dodge(width = 0.9)) 
-pc3a
-pc3a_alt = pc3a + facet_grid(~habitat)
-pc3a_alt
+#PC3
+PC3plot = ggplot(data = subset(cwmsummaries_long, trait == "PC3"),aes(x=WFtreatment_order, y= mean, group = habitat, shape = habitat))+
+  geom_point( size = 4)+
+  scale_shape_manual(values = c(15,5)) +
+  geom_errorbar(data = subset(cwmsummaries_long, trait == "PC3"), aes(ymin = mean - se, ymax = mean + se), width = 0.2) + 
+  theme_bw() + 
+  labs(x = "Treatment", y = "CWM PC3", shape = "Habitat") + 
+  theme(legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14))
+PC3plot 
 
 
 ## PC4 ##
@@ -838,29 +813,28 @@ cld_PC4 = as.data.frame(cld(PC4_emm,
   ))) %>%
   mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","W", "N", "WN")))
 
-PC4plot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=PC4_CWM, fill = habitat))+
-  geom_boxplot(position = position_dodge(.9))+
-  labs(title="",subtitle = "",y="CWM PC4", x="")+
-  scale_fill_grey(start=0.9, end=0.4) +
-  scale_color_grey(start=0.4, end=0.7) +
-  #facet_grid(rows = vars(type), cols=vars(habitat),switch="y",scales = "free")+
-  theme_bw()+
-  theme(panel.spacing = unit(0, units = "cm"), 
-        legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
-        axis.title.y = element_text(size = 14))  +
-  labs(fill = "Habitat")
-
-pc4a= PC4plot + geom_text(data = cld_PC4, aes( x = WFtreatment_order, y = 2.1, group = habitat, label = PC4_letters ),
-                          position = position_dodge(width = 0.9)) 
-pc4a
-pc4a_alt = pc4a + facet_grid(~habitat)
-pc4a_alt
+#PC4
+PC4plot = ggplot(data = subset(cwmsummaries_long, trait == "PC4"),aes(x=WFtreatment_order, y= mean, group = habitat, shape = habitat))+
+  geom_point( size = 4)+
+  scale_shape_manual(values = c(15,5)) +
+  geom_errorbar(data = subset(cwmsummaries_long, trait == "PC4"), aes(ymin = mean - se, ymax = mean + se), width = 0.2) + 
+  theme_bw() + 
+  labs(x = "Treatment", y = "CWM PC4", shape = "Habitat") + 
+  theme(legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14))
+PC4plot 
  
-## Fig S3 ###
-plot_grid(pc1a_alt + theme(legend.position = "none"),
-          pc2a_alt+ theme(legend.position = "none"),
-          pc3a_alt, 
-          pc4a_alt,
+#### Fig S2 ####
+plot_grid(PC1plot + theme(legend.position = "none", axis.title.x = element_blank()),
+          PC2plot+ theme(legend.position = "none",  axis.title.x = element_blank()),
+          PC3plot, 
+          PC4plot + theme(
+            legend.title = element_blank(),
+            legend.text = element_blank(),
+            legend.key = element_blank(),
+            legend.background = element_blank())  + 
+            guides(shape=guide_legend(override.aes=list(shape=NA))),
           ncol = 2,
           labels = c("A.", "B.", "C.", "D."), label_size=14)
-#ggsave("Plots/FigS3_CWMresponses_PCs_faceted.jpg", height = 10, width = 10)
+#ggsave("Plots/FigS2_CWMresponses_PCs_scatterplot.jpg", height = 10, width = 10)
+#ggsave("Plots/FigS2_CWMresponses_PCs_scatterplot.pdf", height = 10, width = 10)
