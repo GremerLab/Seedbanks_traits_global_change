@@ -395,7 +395,10 @@ Shapeplot
 
 
 #### Figure 3 #### 
-plot_grid(SCTplot + theme(legend.position = "none") +
+title <- ggdraw() + 
+  draw_label("Harsh Serpentine", fontface = 'bold', x = 0.5, hjust = 0.5)
+
+grid = plot_grid(SCTplot + theme(legend.position = "none") +
             theme(plot.margin = unit(c(1, 1, 0.5, 0.5), "cm")) + 
             labs(title = "Figure 3") + theme(plot.title = element_text(vjust = 8, hjust = -.075))+
             theme(axis.title.x = element_blank()),
@@ -412,6 +415,20 @@ plot_grid(SCTplot + theme(legend.position = "none") +
             guides(shape=guide_legend(override.aes=list(shape=NA))),
           ncol = 2, byrow= T,
           labels = c("A.", "B.", "C.", "D."), label_size=14, vjust = 4)
+
+ggdraw(grid) + 
+  draw_label("Harsh Serpentine", 
+             x = 0.25, 
+             y = 0.98, 
+            # fontface = "bold", 
+             size = 14, 
+             hjust = 0.5) + 
+  draw_label("Harsh Serpentine", 
+             x = 0.75, 
+             y = 0.98, 
+             # fontface = "bold", 
+             size = 14, 
+             hjust = 0.5)
 #ggsave("Plots/Fig3_CWMresponses_harsh_scatterplot.jpg", height = 10, width = 10)
 #ggsave("Plots/Fig3_CWMresponses_harsh_scatterplot.pdf", height = 10, width = 10)
 
