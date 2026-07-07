@@ -351,6 +351,7 @@ cwmsummaries_harsh_long = cwmsummaries_harsh %>%
 #SCT
 SCTplot = ggplot(data = subset(cwmsummaries_harsh_long, trait == "SCT"),aes(x=WFtreatment_order, y= mean, group = origin, shape = origin))+
   geom_point( size = 4)+ 
+  scale_shape_manual(values = c(16,2)) +
   geom_errorbar(data = subset(cwmsummaries_harsh_long, trait == "SCT"), aes(ymin = mean - se, ymax = mean + se), width = 0.2) + 
   theme_bw() + 
   labs(x = "Treatment", y = "CWM SCT", shape = "origin", title = "Harsh serpentine") + 
@@ -362,6 +363,7 @@ SCTplot
 #SCP
 SCPplot = ggplot(data = subset(cwmsummaries_harsh_long, trait == "SCP"),aes(x=WFtreatment_order, y= mean, group = origin, shape = origin))+
   geom_point( size = 4)+ 
+  scale_shape_manual(values = c(16,2)) +
   geom_errorbar(data = subset(cwmsummaries_harsh_long, trait == "SCP"), aes(ymin = mean - se, ymax = mean + se), width = 0.2) + 
   theme_bw() + 
   labs(x = "Treatment", y = "CWM SCP", shape = "origin", title = "  ") + 
@@ -372,6 +374,7 @@ SCPplot
 #Length
 Lengthplot = ggplot(data = subset(cwmsummaries_harsh_long, trait == "Length"),aes(x=WFtreatment_order, y= mean, group = origin, shape = origin))+
   geom_point( size = 4)+ 
+  scale_shape_manual(values = c(16,2)) +
   geom_errorbar(data = subset(cwmsummaries_harsh_long, trait == "Length"), aes(ymin = mean - se, ymax = mean + se), width = 0.2) + 
   theme_bw() + 
   labs(x = "Treatment", y = "CWM Length", shape = "origin", title = "  ") + 
@@ -382,6 +385,7 @@ Lengthplot
 #Shape
 Shapeplot = ggplot(data = subset(cwmsummaries_harsh_long, trait == "Shape"),aes(x=WFtreatment_order, y= mean, group = origin, shape = origin))+
   geom_point( size = 4)+ 
+  scale_shape_manual(values = c(16,2)) +
   geom_errorbar(data = subset(cwmsummaries_harsh_long, trait == "Shape"), aes(ymin = mean - se, ymax = mean + se), width = 0.2) + 
   theme_bw() + 
   labs(x = "Treatment", y = "CWM Shape", shape = "origin", title = "  ") + 
