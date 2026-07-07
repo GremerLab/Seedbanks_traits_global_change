@@ -315,6 +315,107 @@ cld_Shape_harshorigin = as.data.frame(cld(Shape_emm,
   mutate(WFtreatment_order = factor(WFtreatment, levels = c("C","W", "N", "WN")))
 
 #### Figures ####
+#calculate trait means and standard errors
+# standard error function 
+std_error <- function(x, na.rm = FALSE) {
+  if (na.rm) x <- x[!is.na(x)]
+  sd(x) / sqrt(length(x))
+}
+
+cwmsummaries_harsh = cwmdat_harsh %>%
+  group_by(origin, watering, fertilization, WFtreatment, WFtreatment_order) %>%
+  summarise(
+    n = n(),
+    across(
+      .cols = c(contains("_CWM")),
+      .fns = list(mean = ~mean(., na.rm= TRUE), sd = ~sd(., na.rm = TRUE), se = ~std_error(.x, na.rm= TRUE)),
+      .names = "{.col}_{.fn}"
+    )) %>%
+  ungroup()
+#pivot longer to have means, sds, and se by origin, treatment, and trait               
+cwmsummaries_harsh_long = cwmsummaries_harsh %>%
+  pivot_longer(
+    cols = c(contains("CWM")),
+    names_to = "variable",
+    values_to = "value"
+  ) %>%
+  separate(variable, sep = "_", into= c("trait", "CWM", "stat")) %>%
+  #pivot wider again to have stats in separate columns
+  pivot_wider(
+    id_cols = c(origin, watering, fertilization, WFtreatment, WFtreatment_order, n, trait, CWM),
+    names_from = stat, 
+    values_from = value
+  ) %>%
+  dplyr::select(- CWM)
+
+#SCT
+SCTplot = ggplot(data = subset(cwmsummaries_harsh_long, trait == "SCT"),aes(x=WFtreatment_order, y= mean, group = origin, shape = origin))+
+  geom_point( size = 4)+ 
+  scale_shape_manual(values = c(15,5)) +
+  geom_errorbar(data = subset(cwmsummaries_harsh_long, trait == "SCT"), aes(ymin = mean - se, ymax = mean + se), width = 0.2) + 
+  theme_bw() + 
+  labs(x = "Treatment", y = "CWM SCT", shape = "origin", title = "Harsh serpentine") + 
+  theme(legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14))
+SCTplot  
+
+
+#SCP
+SCPplot = ggplot(data = subset(cwmsummaries_harsh_long, trait == "SCP"),aes(x=WFtreatment_order, y= mean, group = origin, shape = origin))+
+  geom_point( size = 4)+ 
+  scale_shape_manual(values = c(15,5)) +
+  geom_errorbar(data = subset(cwmsummaries_harsh_long, trait == "SCP"), aes(ymin = mean - se, ymax = mean + se), width = 0.2) + 
+  theme_bw() + 
+  labs(x = "Treatment", y = "CWM SCP", shape = "origin", title = "  ") + 
+  theme(legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14))
+SCPplot  
+
+#Length
+Lengthplot = ggplot(data = subset(cwmsummaries_harsh_long, trait == "Length"),aes(x=WFtreatment_order, y= mean, group = origin, shape = origin))+
+  geom_point( size = 4)+ 
+  scale_shape_manual(values = c(15,5)) +
+  geom_errorbar(data = subset(cwmsummaries_harsh_long, trait == "Length"), aes(ymin = mean - se, ymax = mean + se), width = 0.2) + 
+  theme_bw() + 
+  labs(x = "Treatment", y = "CWM Length", shape = "origin", title = "  ") + 
+  theme(legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14))
+Lengthplot
+
+#Shape
+Shapeplot = ggplot(data = subset(cwmsummaries_harsh_long, trait == "Shape"),aes(x=WFtreatment_order, y= mean, group = origin, shape = origin))+
+  geom_point( size = 4)+ 
+  scale_shape_manual(values = c(15,5)) +
+  geom_errorbar(data = subset(cwmsummaries_harsh_long, trait == "Shape"), aes(ymin = mean - se, ymax = mean + se), width = 0.2) + 
+  theme_bw() + 
+  labs(x = "Treatment", y = "CWM Shape", shape = "origin", title = "  ") + 
+  theme(legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14))
+Shapeplot  
+
+
+#### Figure 3 #### 
+plot_grid(SCTplot + theme(legend.position = "none") +
+            theme(plot.margin = unit(c(1, 1, 0.5, 0.5), "cm")) + 
+            labs(title = "Figure 3") + theme(plot.title = element_text(vjust = 8, hjust = -.075))+
+            theme(axis.title.x = element_blank()),
+          SCPplot + theme(legend.position = "none")+
+            theme(plot.margin = unit(c(1, 1, 0.5, 0.5), "cm")) + 
+            labs(title = "    ") + theme(plot.title = element_text(vjust = 8, hjust = -.075))+
+            theme(axis.title.x = element_blank()),
+          Lengthplot,
+          Shapeplot + theme(
+            legend.title = element_blank(),
+            legend.text = element_blank(),
+            legend.key = element_blank(),
+            legend.background = element_blank())  + 
+            guides(shape=guide_legend(override.aes=list(shape=NA))),
+          ncol = 2, byrow= T,
+          labels = c("A.", "B.", "C.", "D."), label_size=14, vjust = 4)
+#ggsave("Plots/Fig3_CWMresponses_harsh_scatterplot.jpg", height = 10, width = 10)
+#ggsave("Plots/Fig3_CWMresponses_harsh_scatterplot.pdf", height = 10, width = 10)
+
+#### Old figure code ####
 SCTplot_harshorigin = ggplot(data=cwmdat_harsh,aes(x=WFtreatment_order, y=SCT_CWM, fill = origin))+
   geom_boxplot(position = position_dodge(.9))+
   labs(title="",subtitle = "",y="CWM SCT", x="")+
