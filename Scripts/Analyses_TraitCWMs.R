@@ -548,145 +548,131 @@ cld_Shape = as.data.frame(cld(Shape_emm,
 
 
 #### Figures ####
-SCTplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=SCT_CWM, fill = habitat))+
-  geom_boxplot(position = position_dodge(.9))+
-  labs(title="",subtitle = "",y="CWM SCT", x="")+
-  scale_fill_grey(start=0.9, end=0.4) +
-  scale_color_grey(start=0.4, end=0.7) +
-  #facet_grid(rows = vars(type), cols=vars(habitat),switch="y",scales = "free")+
-  theme_bw()+
-  theme(panel.spacing = unit(0, units = "cm"), 
-        legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
-        axis.title.y = element_text(size = 14))  +
-         labs(fill = "Habitat")
+#calculate trait means and standard errors
+# standard error function 
+std_error <- function(x, na.rm = FALSE) {
+  if (na.rm) x <- x[!is.na(x)]
+  sd(x) / sqrt(length(x))
+}
 
-a= SCTplot + geom_text(data = cld_SCT, aes( x = WFtreatment_order, y = 2.1, group = habitat, label = SCT_letters ),
-                    position = position_dodge(width = 0.9)) 
-a
-a_alt = a + facet_grid(~habitat)
-a_alt
+cwmsummaries = cwmdat %>%
+               group_by(habitat, watering, fertilization, WFtreatment, WFtreatment_order) %>%
+               summarise(
+                 n = n(),
+                 across(
+                   .cols = c(contains("_CWM")),
+                   .fns = list(mean = ~mean(., na.rm= TRUE), sd = ~sd(., na.rm = TRUE), se = ~std_error(.x, na.rm= TRUE)),
+                   .names = "{.col}_{.fn}"
+                 )) %>%
+                ungroup()
+#pivot longer to have means, sds, and se by habitat, treatment, and trait               
+cwmsummaries_long = cwmsummaries %>%
+                    pivot_longer(
+                      cols = c(contains("CWM")),
+                      names_to = "variable",
+                      values_to = "value"
+                    ) %>%
+                   separate(variable, sep = "_", into= c("trait", "CWM", "stat")) %>%
+                  #pivot wider again to have stats in separate columns
+                  pivot_wider(
+                    id_cols = c(habitat, watering, fertilization, WFtreatment, WFtreatment_order, n, trait, CWM),
+                    names_from = stat, 
+                    values_from = value
+                  ) %>%
+                   dplyr::select(- CWM)
 
-Massplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=Mass_CWM, fill = habitat))+
-  geom_boxplot(position = position_dodge(.9))+
-  labs(title="",subtitle = "",y="CWM Mass", x="")+
-  scale_fill_grey(start=0.9, end=0.4) +
-  scale_color_grey(start=0.4, end=0.7) +
-  #facet_grid(rows = vars(type), cols=vars(habitat),switch="y",scales = "free")+
-  theme_bw()+
-  theme(panel.spacing = unit(0, units = "cm"), 
-        legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
-        axis.title.y = element_text(size = 14))  +
-  labs(fill = "Habitat")
+#SCT
+SCTplot = ggplot(data = subset(cwmsummaries_long, trait == "SCT"),aes(x=WFtreatment_order, y= mean, group = habitat, shape = habitat))+
+  geom_point( size = 4)+ 
+  scale_shape_manual(values = c(15,5)) +
+  geom_errorbar(data = subset(cwmsummaries_long, trait == "SCT"), aes(ymin = mean - se, ymax = mean + se), width = 0.2) + 
+  theme_bw() + 
+  labs(x = "Treatment", y = "CWM SCT", shape = "Habitat") + 
+  theme(legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14))
+SCTplot  
 
-b= Massplot + geom_text(data = cld_Mass, aes( x = WFtreatment_order, y = 2, group = habitat, label = Mass_letters ),
-                    position = position_dodge(width = 0.9))
-b_alt = b + facet_grid(~habitat)
-b_alt
+#SCP
+SCPplot = ggplot(data = subset(cwmsummaries_long, trait == "SCP"),aes(x=WFtreatment_order, y= mean, group = habitat, shape = habitat))+
+  geom_point( size = 4)+
+  scale_shape_manual(values = c(15,5)) +
+  geom_errorbar(data = subset(cwmsummaries_long, trait == "SCP"), aes(ymin = mean - se, ymax = mean + se), width = 0.2) + 
+  theme_bw() + 
+  labs(x = "Treatment", y = "CWM SCP", shape = "Habitat") + 
+  theme(legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14))
+SCPplot  
 
-SCPplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=SCP_CWM, fill = habitat))+
-  geom_boxplot(position = position_dodge(.9))+
-  labs(title="",subtitle = "",y="CWM SCP", x="")+
-  scale_fill_grey(start=0.9, end=0.4) +
-  scale_color_grey(start=0.4, end=0.7) +
-  #facet_grid(rows = vars(type), cols=vars(habitat),switch="y",scales = "free")+
-  theme_bw()+
-  theme(panel.spacing = unit(0, units = "cm"), 
-        legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
-        axis.title.y = element_text(size = 14))  +
-  labs(fill = "Habitat")
+#Length
+Lengthplot = ggplot(data = subset(cwmsummaries_long, trait == "Length"),aes(x=WFtreatment_order, y= mean, group = habitat, shape = habitat))+
+  geom_point( size = 4)+
+  scale_shape_manual(values = c(15,5)) +
+  geom_errorbar(data = subset(cwmsummaries_long, trait == "Length"), aes(ymin = mean - se, ymax = mean + se), width = 0.2) + 
+  theme_bw() + 
+  labs(x = "Treatment", y = "CWM Length", shape = "Habitat") + 
+  theme(legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14))
+Lengthplot  
 
-c= SCPplot + geom_text(data = cld_SCP, aes( x = WFtreatment_order, y = 2.1, group = habitat, label = SCP_letters ),
-                    position = position_dodge(width = 0.9))
-c_alt = c + facet_grid(~habitat)
-c_alt
+#Mass
+Massplot = ggplot(data = subset(cwmsummaries_long, trait == "Mass"),aes(x=WFtreatment_order, y= mean, group = habitat, shape = habitat))+
+  geom_point( size = 4)+
+  scale_shape_manual(values = c(15,5)) +
+  geom_errorbar(data = subset(cwmsummaries_long, trait == "Mass"), aes(ymin = mean - se, ymax = mean + se), width = 0.2) + 
+  theme_bw() + 
+  labs(x = "Treatment", y = "CWM Mass", shape = "Habitat") + 
+  theme(legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14))
+Massplot  
 
-CNplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=CN_CWM, fill = habitat))+
-  geom_boxplot(position = position_dodge(.9))+
-  labs(title="",subtitle = "",y="CWM CN", x="")+
-  scale_fill_grey(start=0.9, end=0.4) +
-  scale_color_grey(start=0.4, end=0.7) +
-  #facet_grid(rows = vars(type), cols=vars(habitat),switch="y",scales = "free")+
-  theme_bw()+
-  theme(panel.spacing = unit(0, units = "cm"), 
-        legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
-        axis.title.y = element_text(size = 14))  +
-  labs(fill = "Habitat")
+#CN
+CNplot = ggplot(data = subset(cwmsummaries_long, trait == "CN"),aes(x=WFtreatment_order, y= mean, group = habitat, shape = habitat))+
+  geom_point( size = 4)+
+  scale_shape_manual(values = c(15,5)) +
+  geom_errorbar(data = subset(cwmsummaries_long, trait == "CN"), aes(ymin = mean - se, ymax = mean + se), width = 0.2) + 
+  theme_bw() + 
+  labs(x = "Treatment", y = "CWM CN", shape = "Habitat") + 
+  theme(legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14))
+CNplot  
 
-d= CNplot + geom_text(data = cld_CN, aes( x = WFtreatment_order, y = 26, group = habitat, label = CN_letters ),
-                    position = position_dodge(width = 0.9))
-d_alt = d + facet_grid(~habitat)
-d_alt
-
-Lengthplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=Length_CWM, fill = habitat))+
-  geom_boxplot(position = position_dodge(.9))+
-  labs(title="",subtitle = "",y="CWM Length", x="")+
-  scale_fill_grey(start=0.9, end=0.4) +
-  scale_color_grey(start=0.4, end=0.7) +
-  #facet_grid(rows = vars(type), cols=vars(habitat),switch="y",scales = "free")+
-  theme_bw()+
-  theme(panel.spacing = unit(0, units = "cm"), 
-        legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
-        axis.title.y = element_text(size = 14))  +
-  labs(fill = "Habitat")
-
-e =Lengthplot + geom_text(data = cld_Length, aes( x = WFtreatment_order, y = 2.5, group = habitat, label = Length_letters ),
-                    position = position_dodge(width = 0.9))
-e
-e_alt = e + facet_grid(~habitat)
-e_alt
-
-Starchplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=Starch_CWM, fill = habitat))+
-  geom_boxplot(position = position_dodge(.9))+
-  labs(title="",subtitle = "",y="CWM Starch", x="")+
-  scale_fill_grey(start=0.9, end=0.4) +
-  scale_color_grey(start=0.4, end=0.7) +
-  #facet_grid(rows = vars(type), cols=vars(habitat),switch="y",scales = "free")+
-  theme_bw()+
-  theme(panel.spacing = unit(0, units = "cm"), 
-        legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
-        axis.title.y = element_text(size = 14))  +
-  labs(fill = "Habitat")
-
-f= Starchplot + geom_text(data = cld_Starch, aes( x = WFtreatment_order, y = 1.05, group = habitat, label = Starch_letters ),
-                    position = position_dodge(width = 0.9))
-f
-f_alt = f + facet_grid(~habitat)
-f_alt
-
-Shapeplot = ggplot(data=cwmdat,aes(x=WFtreatment_order, y=Shape_CWM, fill = habitat))+
-  geom_boxplot(position = position_dodge(.9))+
-  labs(title="",subtitle = "",y="CWM Shape", x="")+
-  scale_fill_grey(start=0.9, end=0.4) +
-  scale_color_grey(start=0.4, end=0.7) +
-  #facet_grid(rows = vars(type), cols=vars(habitat),switch="y",scales = "free")+
-  theme_bw()+
-  theme(panel.spacing = unit(0, units = "cm"), 
-        legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
-        axis.title.y = element_text(size = 14))  +
-  labs(fill = "Habitat")
-
-g= Shapeplot + geom_text(data = cld_Shape, aes( x = WFtreatment_order, y = -1.65, group = habitat, label = Shape_letters ),
-                    position = position_dodge(width = 0.9))
-g
-g_alt = g + facet_grid(~habitat)
-g_alt
-
+#Shape
+Shapeplot = ggplot(data = subset(cwmsummaries_long, trait == "Shape"),aes(x=WFtreatment_order, y= mean, group = habitat, shape = habitat))+
+  geom_point( size = 4)+
+  scale_shape_manual(values = c(15,5)) +
+  geom_errorbar(data = subset(cwmsummaries_long, trait == "Shape"), aes(ymin = mean - se, ymax = mean + se), width = 0.2) + 
+  theme_bw() + 
+  labs(x = "Treatment", y = "CWM Shape", shape = "Habitat") + 
+  theme(legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14))
+Shapeplot  
 ### Figure 2: CWM traits ###
 #changed order of traits to be more similar to table 1
-plot_grid(a_alt + theme(legend.position = "none") +
+plot_grid(SCTplot + theme(legend.position = "none") +
             theme(plot.margin = unit(c(1, 1, 0.5, 0.5), "cm")) + 
-            labs(title = "Figure 2") + theme(plot.title = element_text(vjust = 5, hjust = -.05)),
-          c_alt+ theme(legend.position = "none")+
+            labs(title = "Figure 2") + theme(plot.title = element_text(vjust = 5, hjust = -.05))+
+            theme(axis.title.x = element_blank()),
+          Massplot + theme(legend.position = "none")+
             theme(plot.margin = unit(c(1, 1, 0.5, 0.5), "cm")) + 
-            labs(title = "    ") + theme(plot.title = element_text(vjust = 5, hjust = -.05)),
-          b_alt+ theme(legend.position = "none"),
-          e_alt+ theme(legend.position = "none"),
-          g_alt + theme(legend.position = "none"), 
-          #f_alt, 
-          d_alt+ theme(legend.position = "none"),
+            labs(title = "    ") + theme(plot.title = element_text(vjust = 5, hjust = -.05))+
+            theme(axis.title.x = element_blank()),
+          SCPplot + theme(legend.position = "none")+
+            theme(axis.title.x = element_blank()),
+          CNplot + theme(legend.position = "none")+
+            theme(axis.title.x = element_blank()),
+          Lengthplot,
+          Shapeplot + theme(
+            legend.title = element_blank(),
+            legend.text = element_blank(),
+            legend.key = element_blank(),
+            legend.background = element_blank())  + 
+            guides(shape=guide_legend(override.aes=list(shape=NA))),
           ncol = 2, byrow= T,
-          labels = c("A.", "B.", "C.", "D.", "E.", "F.", "G."), label_size=14, vjust = 5)
-#ggsave("Plots/Fig2_CWMresponses_faceted.jpg", height = 10, width = 10)
+          labels = c("A.", "B.", "C.", "D.", "E.", "F.", "G."), label_size=14, vjust = 4)
+#ggsave("Plots/Fig2_CWMresponses_scatterplot.jpg", height = 10, width = 10)
+#ggsave("Plots/Fig2_CWMresponses_scatterplot.pdf", height = 10, width = 10)
+
+#start here
 
 ## Figure S3: start CWM ##
 f_alt
