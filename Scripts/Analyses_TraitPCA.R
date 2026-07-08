@@ -269,7 +269,7 @@ m1_tukey_origin
 
 m1_tukey_Functional.group <- as.data.frame(m1_tukey[[2]])
 m1_tukey_Functional.group$q_statistic <- m1_tukey_Functional.group$diff / (m1_tukey_Functional.group$lwr / qt(0.975, df.residual(m1)))
-m1_tukey_Functional.group
+round(m1_tukey_Functional.group, 3)
 #Grasses have lower PC1 than forbs, N-fixers have higher PC1 than grasses
 #native have higher PC1 than non-native 
 
@@ -306,6 +306,8 @@ m3_tukey_Functional.group
 m4=aov(data=all2,PC4~origin+Functional.group)
 anova(m4)
 m4_tukey= TukeyHSD(m4)
+#functional group is sig, but contrasts aren't sig.  
+#n-fixers have lower PC4 than natives (p=0.07, q = 0.968)
 
 #calculate q-statistic
 m4_tukey_origin <- as.data.frame(m4_tukey[[1]])
@@ -315,8 +317,6 @@ m4_tukey_origin
 m4_tukey_Functional.group <- as.data.frame(m4_tukey[[2]])
 m4_tukey_Functional.group$q_statistic <- m4_tukey_Functional.group$diff / (m4_tukey_Functional.group$lwr / qt(0.975, df.residual(m4)))
 m4_tukey_Functional.group
-#functional group is sig, but contrasts aren't sig.  
-#n-fixers have lower PC4 than natives (p=0.07, q = 0.968)
 
 
 #### PCA without the 7 species missing texture ####
@@ -446,20 +446,26 @@ m42=aov(data=all22,PC4~origin+Functional.group)
 TukeyHSD(m42)
 summary(m42)
 
-#### Trait correlation matrix, Fig S2 ####
+#### Trait correlation matrix, Fig S1 #### #WORKING ON THIS!! ###
 traits_all = traitdat %>%
-             dplyr:: select(SCT, Mass, SCP, Carbon, CN, Length, Starch, Shape, Disp, Texture, Compact, Mucilage= mucilage, Intensity, Perimeter , N)
+             dplyr:: select(SCT, Mass, SCP, Carbon, CN, Length, Shape, Texture, Compact, Intensity, Perimeter , N)
 traitcor_all =as.data.frame(cor(traits_all))
-pmat=ggcorrplot::cor_pmat(x = traits_all)
-#FigS2 = ggcorrplot::ggcorrplot(traitcor_all,type="upper",p.mat = pmat, lab=T,insig = "blank")  + theme_minimal()
-#cormatplot = ggcorrplot::ggcorrplot(traitcor_all,type="lower",p.mat = pmat, lab=F, hc.order = T, sig.level = 1)
-#FigS2 = cormatplot + geom_text(aes(x = Var2, y = Var1, label = value,
- #                         fontface = ifelse(pvalue < 0.05, "bold", "plain")),
-  #                    data = cormatplot$data, # Use the data internal to the ggcorrplot object
-   #                   size = 4) + theme_minimal()
-#figS1
-jpeg(file = "Plots/FigS1_Traits_correlationmatrix.jpg", width = 20, height = 20, units = "cm", res = 600) # Adjust width and height in pixels
 
-corrplot::corrplot(cor(traits_all), method = "number", type = "lower", sig.level = 0.05,  tl.col="black", insig = "label_sig", diag=F)
+#correlogram using GGally and ggpairs
+#figS1
+library(GGally)
+jpeg(file = "Plots/FigS1_TraitCorrelations_scatter.jpg", width = 30, height = 30, units = "cm", res = 600) # Adjust width and height in pixels
+
+ggpairs(traits_all) 
 dev.off()
-#ggsave("Plots/FigS1_Traits_correlationmatrix.jpg", height = 10, width = 10)
+
+#Old code for correlation matrix, commented out
+#pmat=ggcorrplot::cor_pmat(x = traits_all)
+              #  size = 4) + theme_minimal()
+#figS1
+#jpeg(file = "Plots/FigS1_Traits_correlationmatrix_rvals.jpg", width = 20, height = 20, units = "cm", res = 600) # Adjust width and height in pixels
+
+#corrplot::corrplot(cor(traits_all), method = "number", type = "lower", sig.level = 0.05,  tl.col="black", insig = "label_sig", diag=F)
+#dev.off()
+
+####
