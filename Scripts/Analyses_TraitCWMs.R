@@ -670,8 +670,8 @@ plot_grid(SCTplot + theme(legend.position = "none") +
             guides(shape=guide_legend(override.aes=list(shape=NA))),
           ncol = 2, byrow= T,
           labels = c("A.", "B.", "C.", "D.", "E.", "F.", "G."), label_size=14, vjust = 4)
-#ggsave("Plots/Fig2_CWMresponses_scatterplot.jpg", height = 10, width = 10)
-#ggsave("Plots/Fig2_CWMresponses_scatterplot.pdf", height = 10, width = 10)
+#ggsave("Plots/Fig2_CWMresponses_means_ses.jpg", height = 10, width = 10)
+#ggsave("Plots/Fig2_CWMresponses_means_ses.pdf", height = 10, width = 10)
 
 
 
@@ -686,8 +686,8 @@ Starchplot = ggplot(data = subset(cwmsummaries_long, trait == "Starch"),aes(x=WF
   theme(legend.position = "bottom",legend.title = element_blank(),axis.title.x = element_text(size = 14),
         axis.title.y = element_text(size = 14))
 Starchplot  
-#ggsave("Plots/FigS3_CWMresponses_starch_scatterplot.jpg", height = 5, width = 5)
-#ggsave("Plots/FigS3_CWMresponses_starch_scatterplot.pdf", height = 5, width = 5)
+#ggsave("Plots/FigS3_CWMresponses_starch_means_ses.jpg", height = 5, width = 5)
+#ggsave("Plots/FigS3_CWMresponses_starch_means_ses.pdf", height = 5, width = 5)
 
 
 #### PC CWM contrasts and figures ####
@@ -836,5 +836,5 @@ plot_grid(PC1plot + theme(legend.position = "none", axis.title.x = element_blank
             guides(shape=guide_legend(override.aes=list(shape=NA))),
           ncol = 2,
           labels = c("A.", "B.", "C.", "D."), label_size=14)
-#ggsave("Plots/FigS2_CWMresponses_PCs_scatterplot.jpg", height = 10, width = 10)
-#ggsave("Plots/FigS2_CWMresponses_PCs_scatterplot.pdf", height = 10, width = 10)
+#ggsave("Plots/FigS2_CWMresponses_PCs_means_ses.jpg", height = 10, width = 10)
+#ggsave("Plots/FigS2_CWMresponses_PCs_means_ses.pdf", height = 10, width = 10)
