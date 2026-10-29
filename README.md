@@ -5,3 +5,5 @@ Authors: Elise C. Elwood, Jennifer L. Funk, Anu Eskelinen, Susan P. Harrison, Ma
 *Corresponding author
 
 Accepted for publication in _Ecology_
+
+<a href="https://doi.org/10.5281/zenodo.23784674"><img src="https://zenodo.org/badge/994862892.svg" alt="DOI"></a>
